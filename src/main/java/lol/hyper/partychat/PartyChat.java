@@ -16,8 +16,7 @@ public final class PartyChat extends JavaPlugin {
     @Override
     public void onEnable() {
         this.getCommand("party").setExecutor(new CommandParty());
-        this.getCommand("pc").setExecutor(new CommandPartyChatToggle());
-        Bukkit.getServer().getPluginManager().registerEvents(new ChatEvent(), this);
+        this.getCommand("pc").setExecutor(new CommandPartyChatMessage());
 
         File partyFolder = new File("parties");
         if (!partyFolder.exists()) {

@@ -25,7 +25,7 @@ public class CommandParty implements CommandExecutor {
         if (args.length == 0) {
             sender.sendMessage(ChatColor.RED + "Invalid syntax. Do /party help for commands.");
         }
-        if (args[0].equalsIgnoreCase("create")) {
+        else if (args[0].equalsIgnoreCase("create")) {
             if (args.length > 1) {
                 sender.sendMessage(ChatColor.RED + "Invalid syntax. Do /party create instead.");
             } else {
@@ -43,7 +43,7 @@ public class CommandParty implements CommandExecutor {
                 }
             }
         }
-        if (args[0].equalsIgnoreCase("invite")) {
+        else if (args[0].equalsIgnoreCase("invite")) {
             if (args.length == 1 || args.length > 2) {
                 sender.sendMessage(ChatColor.RED + "Invalid syntax. Do /party invite <player> instead.");
             } else {
@@ -82,7 +82,7 @@ public class CommandParty implements CommandExecutor {
                 }
             }
         }
-        if (args[0].equalsIgnoreCase("accept")) {
+        else if (args[0].equalsIgnoreCase("accept")) {
             if (args.length > 1) {
                 sender.sendMessage(ChatColor.RED + "Invalid syntax! Do /party accept instead.");
             } else {
@@ -100,7 +100,7 @@ public class CommandParty implements CommandExecutor {
                 }
             }
         }
-        if (args[0].equalsIgnoreCase("deny")) {
+        else if (args[0].equalsIgnoreCase("deny")) {
             if (args.length > 1) {
                 sender.sendMessage(ChatColor.RED + "Invalid syntax! Do /party deny instead.");
             } else {
@@ -119,7 +119,7 @@ public class CommandParty implements CommandExecutor {
             }
 
         }
-        if (args[0].equalsIgnoreCase("leave")) {
+        else if (args[0].equalsIgnoreCase("leave")) {
             if (args.length > 1) {
                 sender.sendMessage(ChatColor.RED + "Invalid syntax! Do /party leave instead.");
             } else {
@@ -132,9 +132,6 @@ public class CommandParty implements CommandExecutor {
                     } else {
                         PartyManagement.sendPartyMessage(ChatColor.RED + sender.getName() + " has left the party.", PartyManagement.lookupParty(player));
                         PartyManagement.removePlayerFromParty(player, PartyManagement.lookupParty(player));
-                        if (PartyManagement.partyChatEnabled.contains(player)) {
-                            PartyManagement.partyChatEnabled.remove(player);
-                        }
                     }
                 } catch (IOException | ParseException e) {
                     e.printStackTrace();
@@ -142,7 +139,7 @@ public class CommandParty implements CommandExecutor {
                 }
             }
         }
-        if (args[0].equalsIgnoreCase("disband")) {
+        else if (args[0].equalsIgnoreCase("disband")) {
             if (args.length > 1) {
                 sender.sendMessage(ChatColor.RED + "Invalid syntax! Do /party disband instead.");
             } else {
@@ -162,7 +159,7 @@ public class CommandParty implements CommandExecutor {
                 }
             }
         }
-        if (args[0].equalsIgnoreCase("kick")) {
+        else if (args[0].equalsIgnoreCase("kick")) {
             if (args.length == 1 || args.length > 2) {
                 sender.sendMessage(ChatColor.RED + "Invalid syntax. Do /party kick <player> instead.");
             } else {
@@ -180,9 +177,6 @@ public class CommandParty implements CommandExecutor {
                             if (partyPlayerSender.equals(partyPlayerKicked)) {
                                 sender.sendMessage(ChatColor.RED + "That player is not in your party.");
                             } else {
-                                if (PartyManagement.partyChatEnabled.contains(kickedPlayed)) {
-                                    PartyManagement.partyChatEnabled.remove(kickedPlayed);
-                                }
                                 PartyManagement.sendPartyMessage(ChatColor.RED + kickedPlayed.getName() + " has been kicked from the party.", PartyManagement.lookupParty(kickedPlayed));
                                 PartyManagement.removePlayerFromParty(kickedPlayed, PartyManagement.lookupParty(kickedPlayed));
                             }
@@ -196,7 +190,38 @@ public class CommandParty implements CommandExecutor {
                 }
             }
         }
-        if (args[0].equalsIgnoreCase("list")) {
+        else if (args[0].equalsIgnoreCase("transfer")) {
+            if (args.length == 1 || args.length > 2) {
+                sender.sendMessage(ChatColor.RED + "Invalid syntax. Do /party transfer <player> instead.");
+            } else {
+                Player player = Bukkit.getPlayer(sender.getName());
+                try {
+                    if (PartyManagement.lookupParty(player) == null) {
+                        sender.sendMessage(ChatColor.RED + "You are not in a party! Do /party create to make one!");
+                    } else if (!PartyManagement.isPlayerOwner(player)) {
+                        sender.sendMessage(ChatColor.RED + "You cannot transfer ownership. Only owners can.");
+                    } else {
+                        if (Bukkit.getPlayer(args[1]) != null) {
+                            Player newOwner = Bukkit.getPlayerExact(args[1]);
+                            String partyPlayerKicked = PartyManagement.lookupParty(newOwner);
+                            String partyPlayerSender = PartyManagement.lookupOwner(PartyManagement.lookupParty(player)).toString();
+                            if (partyPlayerSender.equals(partyPlayerKicked)) {
+                                sender.sendMessage(ChatColor.RED + "That player is not in your party.");
+                            } else {
+                                PartyManagement.sendPartyMessage(ChatColor.RED + newOwner.getName() + " is now the owner of the party.", PartyManagement.lookupParty(newOwner));
+                                PartyManagement.updatePartyOwner(newOwner, PartyManagement.lookupParty(newOwner));
+                            }
+                        } else {
+                            sender.sendMessage(ChatColor.RED + "Invalid player.");
+                        }
+                    }
+                } catch (IOException | ParseException e) {
+                    e.printStackTrace();
+                    sender.sendMessage(ChatColor.RED + "There was an issue with the party file. Please contact hyperdefined.");
+                }
+            }
+        }
+        else if (args[0].equalsIgnoreCase("list")) {
             if (args.length > 1) {
                 sender.sendMessage(ChatColor.RED + "Invalid syntax! Do /party list instead.");
             } else {
@@ -206,6 +231,7 @@ public class CommandParty implements CommandExecutor {
                         sender.sendMessage(ChatColor.RED + "You are not in a party! Do /party create to make one!");
                     } else {
                         sender.sendMessage(ChatColor.GOLD + "--------------------------------------------");
+                        sender.sendMessage(ChatColor.GOLD + "Members: " + ChatColor.YELLOW + PartyManagement.listPartyMembers(PartyManagement.lookupParty(player)).size() + ". " + ChatColor.GOLD + "ID: " + ChatColor.YELLOW + PartyManagement.lookupParty(player));
                         for (String partyMember : PartyManagement.listPartyMembers(PartyManagement.lookupParty(player))) {
                             if (Bukkit.getPlayer(UUID.fromString(partyMember)) != null) {
                                 sender.sendMessage(ChatColor.GREEN + UUIDLookup.getName(partyMember));
@@ -221,7 +247,7 @@ public class CommandParty implements CommandExecutor {
                 }
             }
         }
-        if (args[0].equalsIgnoreCase("help")) {
+        else if (args[0].equalsIgnoreCase("help")) {
             if (args.length > 1) {
                 sender.sendMessage(ChatColor.RED + "Invalid syntax! Do /party help instead.");
             } else {
@@ -233,9 +259,12 @@ public class CommandParty implements CommandExecutor {
                 sender.sendMessage(ChatColor.YELLOW + "/party leave - Leave the party.");
                 sender.sendMessage(ChatColor.YELLOW + "/party disband - Delete the party.");
                 sender.sendMessage(ChatColor.YELLOW + "/party list - List who is in the party.");
-                sender.sendMessage(ChatColor.YELLOW + "/pc - Toggle on/off private party chat.");
+                sender.sendMessage(ChatColor.YELLOW + "/party transfer <player> - Transfer ownership of party.");
+                sender.sendMessage(ChatColor.YELLOW + "/pc <message> - Send a message to the party.");
                 sender.sendMessage(ChatColor.GOLD + "--------------------------------------------");
             }
+        } else {
+            sender.sendMessage(ChatColor.RED + "Invalid command! Do /party help instead.");
         }
         return true;
     }

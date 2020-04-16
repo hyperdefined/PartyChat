@@ -32,8 +32,6 @@ public class PartyManagement {
      */
     public static final HashMap<Player, String> pendingInvites = new HashMap<>();
 
-    public static final ArrayList<Player> partyChatEnabled = new ArrayList<>();
-
     private static FileWriter writer;
     private static FileReader reader;
 
@@ -94,6 +92,25 @@ public class PartyManagement {
         JSONArray partyMembers = (JSONArray) jsonObject.get("members");
         partyMembers.add(UUID);
         jsonObject.put("members", partyMembers);
+        writer = new FileWriter("parties/" + partyID + ".json");
+        writer.write(jsonObject.toJSONString());
+        writer.close();
+    }
+
+    /**
+     * Update owner of a party.
+     *
+     * @param newOwner new owner of party
+     * @param partyID   party to add player to
+     */
+    public static void updatePartyOwner(Player newOwner, String partyID) throws IOException, ParseException {
+        String UUID = newOwner.getUniqueId().toString();
+
+        JSONParser jsonParser = new JSONParser();
+        reader = new FileReader("parties/" + partyID + ".json");
+        JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
+        reader.close();
+        jsonObject.put("owner", UUID);
         writer = new FileWriter("parties/" + partyID + ".json");
         writer.write(jsonObject.toJSONString());
         writer.close();
