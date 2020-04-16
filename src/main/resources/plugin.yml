@@ -1,0 +1,13 @@
+name: PartyChat
+version: ${project.version}
+main: lol.hyper.partychat.PartyChat
+api-version: 1.13
+authors: [hyperdefined]
+description: Simple party chat.
+commands:
+  party:
+    description: The main party command.
+    usage: /party
+  pc:
+    description: Toggle party chat on and off.
+    usage: /pc
