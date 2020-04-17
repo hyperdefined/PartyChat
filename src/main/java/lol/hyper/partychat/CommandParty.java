@@ -147,7 +147,7 @@ public class CommandParty implements CommandExecutor {
                 try {
                     if (PartyManagement.lookupParty(player) == null) {
                         sender.sendMessage(ChatColor.RED + "You are not in a party! Do /party create to make one!");
-                    } else if (PartyManagement.lookupOwner(PartyManagement.lookupParty(player)).equals(player.getUniqueId())) {
+                    } else if (PartyManagement.lookupOwner(PartyManagement.lookupParty(player)).toString().equals(player.getUniqueId().toString())) {
                         PartyManagement.sendPartyMessage(ChatColor.RED + "Party has been deleted.", PartyManagement.lookupParty(player));
                         PartyManagement.deleteParty(PartyManagement.lookupParty(player));
                     } else {
