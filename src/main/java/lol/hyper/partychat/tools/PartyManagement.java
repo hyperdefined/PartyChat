@@ -84,7 +84,6 @@ public class PartyManagement {
      */
     public static void addPlayerToParty(Player newMember, String partyID) throws IOException, ParseException {
         String UUID = newMember.getUniqueId().toString();
-
         JSONParser jsonParser = new JSONParser();
         reader = new FileReader("parties/" + partyID + ".json");
         JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
@@ -105,7 +104,6 @@ public class PartyManagement {
      */
     public static void updatePartyOwner(Player newOwner, String partyID) throws IOException, ParseException {
         String UUID = newOwner.getUniqueId().toString();
-
         JSONParser jsonParser = new JSONParser();
         reader = new FileReader("parties/" + partyID + ".json");
         JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
@@ -153,10 +151,8 @@ public class PartyManagement {
                 reader = new FileReader(currentFile);
                 Object obj = parser.parse(reader);
                 reader.close();
-
                 JSONObject currentJSON = (JSONObject) obj;
                 JSONArray memberList = (JSONArray) currentJSON.get("members");
-
                 if (memberList.contains(player.getUniqueId().toString())) {
                     return FilenameUtils.removeExtension(currentFile.getName());
                 }
@@ -174,8 +170,6 @@ public class PartyManagement {
      * @throws ParseException
      */
     public static boolean isPlayerOwner(Player player) throws IOException, ParseException {
-        System.out.println(lookupOwner(lookupParty(player)));
-        System.out.println(player.getUniqueId().toString());
         return lookupOwner(lookupParty(player)).toString().equals(player.getUniqueId().toString());
     }
 
@@ -212,7 +206,6 @@ public class PartyManagement {
         reader = new FileReader("parties/" + partyID + ".json");
         JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
         reader.close();
-
         JSONArray partyMembers = (JSONArray) jsonObject.get("members");
         for (String partyMember : (Iterable<String>) partyMembers) {
             UUID uuid = UUID.fromString(partyMember);
@@ -235,9 +228,7 @@ public class PartyManagement {
         reader = new FileReader("parties/" + partyID + ".json");
         JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
         reader.close();
-
         ArrayList<String> partyArray = new ArrayList<>();
-
         JSONArray partyMembers = (JSONArray) jsonObject.get("members");
         for (String partyMember : (Iterable<String>) partyMembers) {
             partyArray.add(partyMember);
