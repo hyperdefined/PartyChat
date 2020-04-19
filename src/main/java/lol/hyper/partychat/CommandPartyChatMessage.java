@@ -1,3 +1,9 @@
+/**
+ * CommandParty.java
+ * Created on 4/15/2020
+ * - hyperdefined
+ */
+
 package lol.hyper.partychat;
 
 import lol.hyper.partychat.tools.PartyManagement;
@@ -22,9 +28,9 @@ public class CommandPartyChatMessage implements CommandExecutor {
                 if (PartyManagement.lookupParty(player) != null) {
                     StringBuilder str = new StringBuilder();
                     for (String x : args) {
-                        str.append(x + " ");
+                        str.append(x).append(" ");
                     }
-                    String playerMessage = "[" + ChatColor.BLUE + "P" + ChatColor.RESET + "] " + "<" + player.getDisplayName() + "> " + str.toString();
+                    String playerMessage = "[" + ChatColor.AQUA + "Party" + ChatColor.RESET + "] " + "<" + player.getDisplayName() + "> " + str.toString();
                     PartyManagement.sendPartyMessage(playerMessage, PartyManagement.lookupParty(player));
                     Bukkit.getLogger().info("[" + PartyManagement.lookupParty(player) + "] " + playerMessage);
                 } else {

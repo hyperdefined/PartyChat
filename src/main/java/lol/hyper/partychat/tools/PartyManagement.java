@@ -101,7 +101,7 @@ public class PartyManagement {
      * Update owner of a party.
      *
      * @param newOwner new owner of party
-     * @param partyID   party to add player to
+     * @param partyID  party to add player to
      */
     public static void updatePartyOwner(Player newOwner, String partyID) throws IOException, ParseException {
         String UUID = newOwner.getUniqueId().toString();
@@ -124,7 +124,6 @@ public class PartyManagement {
      */
     public static void removePlayerFromParty(Player oldPlayer, String partyID) throws IOException, ParseException {
         String UUID = oldPlayer.getUniqueId().toString();
-
         JSONParser jsonParser = new JSONParser();
         reader = new FileReader("parties/" + partyID + ".json");
         JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
@@ -170,29 +169,14 @@ public class PartyManagement {
      * Check if player is the party owner.
      *
      * @param player player to check if they are owner
-     * @return returns their party id if they have one
+     * @return returns returns if player is owner
      * @throws IOException
      * @throws ParseException
      */
     public static boolean isPlayerOwner(Player player) throws IOException, ParseException {
-        File partyFolder = new File("parties");
-        File[] partyDirectory = partyFolder.listFiles();
-        if (partyDirectory != null) {
-            JSONParser parser = new JSONParser();
-            for (File currentFile : partyDirectory) {
-                reader = new FileReader(currentFile);
-                Object obj = parser.parse(reader);
-                reader.close();
-
-                JSONObject currentJSON = (JSONObject) obj;
-                String owner = currentJSON.get("owner").toString();
-
-                if (player.getUniqueId().toString().equals(owner)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        System.out.println(lookupOwner(lookupParty(player)));
+        System.out.println(player.getUniqueId().toString());
+        return lookupOwner(lookupParty(player)).toString().equals(player.getUniqueId().toString());
     }
 
     /**
@@ -204,20 +188,14 @@ public class PartyManagement {
      * @throws ParseException
      */
     public static UUID lookupOwner(String partyID) throws IOException, ParseException {
-        File partyFolder = new File("parties");
-        File[] partyDirectory = partyFolder.listFiles();
-        UUID owner = null;
-        if (partyDirectory != null) {
-            JSONParser parser = new JSONParser();
-            for (File currentFile : partyDirectory) {
-                reader = new FileReader(currentFile);
-                Object obj = parser.parse(reader);
-                reader.close();
-
-                JSONObject currentJSON = (JSONObject) obj;
-                owner = UUID.fromString(currentJSON.get("owner").toString());
-            }
-        }
+        File partyFile = new File("parties/" + partyID + ".json");
+        UUID owner;
+        JSONParser parser = new JSONParser();
+        reader = new FileReader(partyFile);
+        Object obj = parser.parse(reader);
+        reader.close();
+        JSONObject currentJSON = (JSONObject) obj;
+        owner = UUID.fromString(currentJSON.get("owner").toString());
         return owner;
     }
 

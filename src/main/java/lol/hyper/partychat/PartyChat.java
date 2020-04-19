@@ -13,8 +13,15 @@ import java.io.File;
 
 public final class PartyChat extends JavaPlugin {
 
+    private static PartyChat instance;
+
+    public static PartyChat getInstance() {
+        return instance;
+    }
+
     @Override
     public void onEnable() {
+        instance = this;
         this.getCommand("party").setExecutor(new CommandParty());
         this.getCommand("pc").setExecutor(new CommandPartyChatMessage());
 
