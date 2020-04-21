@@ -7,6 +7,7 @@
 package lol.hyper.partychat;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -18,6 +19,8 @@ public final class PartyChat extends JavaPlugin {
     public static PartyChat getInstance() {
         return instance;
     }
+
+    public static final String MESSAGE_PREFIX = ChatColor.GOLD + "[" + ChatColor.YELLOW + "Party" + ChatColor.GOLD + "] " + ChatColor.RESET;
 
     @Override
     public void onEnable() {

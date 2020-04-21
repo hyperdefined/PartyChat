@@ -15,10 +15,11 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 public class UUIDLookup {
-    public static String getName(String uuid) {
-        String url = "https://api.mojang.com/user/profiles/" + uuid.replace("-", "") + "/names";
+    public static String getName(UUID player) {
+        String url = "https://api.mojang.com/user/profiles/" + player.toString().replace("-", "") + "/names";
         try {
             String nameJson = IOUtils.toString(new URL(url), StandardCharsets.UTF_8);
             JSONArray nameValue = (JSONArray) JSONValue.parseWithException(nameJson);
