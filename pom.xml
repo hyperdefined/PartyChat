@@ -13,7 +13,7 @@
 
     <description>Simple party chat.</description>
     <properties>
-        <java.version>11</java.version>
+        <java.version>14</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
