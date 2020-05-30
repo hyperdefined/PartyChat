@@ -16,6 +16,8 @@ public final class PartyChat extends JavaPlugin {
 
     private static PartyChat instance;
 
+    public static final File partyFolder = new File("DMC\\parties");
+
     public static PartyChat getInstance() {
         return instance;
     }
