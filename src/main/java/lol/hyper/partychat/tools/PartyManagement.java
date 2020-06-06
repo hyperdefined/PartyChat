@@ -258,7 +258,7 @@ public class PartyManagement {
         members.add(player.toString());
         partyObject.put("members", members);
 
-        File partyFile = new File(PartyChat.partyFolder, random.toString() + ".json");
+        File partyFile = new File(PartyChat.partyFolder,  random.toString() + ".json");
         writer = new FileWriter(partyFile);
         writer.write(partyObject.toJSONString());
         writer.close();

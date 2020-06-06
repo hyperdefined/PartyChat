@@ -16,13 +16,13 @@ public final class PartyChat extends JavaPlugin {
 
     private static PartyChat instance;
 
-    public static final File partyFolder = new File("DMC\\parties");
+    public static final File partyFolder = new File("DMC/parties");
 
     public static PartyChat getInstance() {
         return instance;
     }
 
-    public static final String MESSAGE_PREFIX = ChatColor.GOLD + "[" + ChatColor.YELLOW + "Party" + ChatColor.GOLD + "] " + ChatColor.RESET;
+    public static final String MESSAGE_PREFIX = ChatColor.DARK_AQUA + "[Party] " + ChatColor.RESET;
 
     @Override
     public void onEnable() {
@@ -30,7 +30,6 @@ public final class PartyChat extends JavaPlugin {
         this.getCommand("party").setExecutor(new CommandParty());
         this.getCommand("pc").setExecutor(new CommandPartyChatMessage());
 
-        File partyFolder = new File("parties");
         if (!partyFolder.exists()) {
             if (!partyFolder.mkdir()) {
                 Bukkit.getLogger().warning("Unable to create parties folder! Please create the folder!");
