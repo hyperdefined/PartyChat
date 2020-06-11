@@ -22,7 +22,7 @@ public final class PartyChat extends JavaPlugin {
         return instance;
     }
 
-    public static final String MESSAGE_PREFIX = ChatColor.DARK_AQUA + "[Party] " + ChatColor.RESET;
+    public static final String MESSAGE_PREFIX = ChatColor.GREEN + "[Party] " + ChatColor.RESET;
 
     @Override
     public void onEnable() {

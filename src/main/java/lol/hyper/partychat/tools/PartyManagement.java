@@ -44,9 +44,9 @@ public class PartyManagement {
      */
     public static void invitePlayer(UUID receiver, UUID sender, String partyID) {
         pendingInvites.put(receiver, partyID);
-        Bukkit.getPlayer(receiver).sendMessage(ChatColor.YELLOW + "You have received a party invite from " + ChatColor.GOLD + Bukkit.getPlayer(sender).getName() + ".");
-        Bukkit.getPlayer(receiver).sendMessage(ChatColor.YELLOW + "To join, type /party accept. To deny, type /party deny.");
-        Bukkit.getPlayer(sender).sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.YELLOW + "Invite sent!");
+        Bukkit.getPlayer(receiver).sendMessage(ChatColor.DARK_AQUA + "You have received a party invite from " + ChatColor.GOLD + Bukkit.getPlayer(sender).getName() + ".");
+        Bukkit.getPlayer(receiver).sendMessage(ChatColor.DARK_AQUA + "To join, type /party accept. To deny, type /party deny.");
+        Bukkit.getPlayer(sender).sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.DARK_AQUA + "Invite sent!");
     }
 
     /**
@@ -60,10 +60,10 @@ public class PartyManagement {
         pendingInvites.remove(pendingPlayer);
         if (answer) {
             addPlayerToParty(pendingPlayer, partyID);
-            sendPartyMessage(PartyChat.MESSAGE_PREFIX + ChatColor.GOLD + Bukkit.getPlayer(pendingPlayer).getName() + ChatColor.YELLOW + " has joined the party!", partyID);
+            sendPartyMessage(PartyChat.MESSAGE_PREFIX + ChatColor.DARK_AQUA + Bukkit.getPlayer(pendingPlayer).getName() + " has joined the party!", partyID);
         } else {
-            Bukkit.getPlayer(lookupOwner(partyID)).sendMessage(PartyChat.MESSAGE_PREFIX+ ChatColor.GOLD + Bukkit.getPlayer(pendingPlayer).getName() + ChatColor.YELLOW + " has denied the invite.");
-            Bukkit.getPlayer(pendingPlayer).sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.YELLOW + "You denied the party invite.");
+            Bukkit.getPlayer(lookupOwner(partyID)).sendMessage(PartyChat.MESSAGE_PREFIX+ ChatColor.RED + Bukkit.getPlayer(pendingPlayer).getName() + " has denied the invite.");
+            Bukkit.getPlayer(pendingPlayer).sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You denied the party invite.");
         }
     }
 
