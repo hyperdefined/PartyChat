@@ -73,7 +73,7 @@ public class PartyManagement {
      * @param partyID Party ID of party to delete.
      */
     public static void deleteParty(String partyID) {
-        File partyFile = new File(PartyChat.partyFolder, partyID + ".json");
+        File partyFile = new File(PartyChat.getInstance().partyFolder.toFile(), partyID + ".json");
         if (!partyFile.delete()) {
             Bukkit.getLogger().warning("Cannot delete party! Please delete: " + partyFile.getAbsolutePath());
         }
@@ -87,7 +87,7 @@ public class PartyManagement {
      */
     public static void addPlayerToParty(UUID newMember, String partyID) throws IOException, ParseException {
         JSONParser jsonParser = new JSONParser();
-        File partyFile = new File(PartyChat.partyFolder, partyID + ".json");
+        File partyFile = new File(PartyChat.getInstance().partyFolder.toFile(), partyID + ".json");
         reader = new FileReader(partyFile);
         JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
         reader.close();
@@ -107,7 +107,7 @@ public class PartyManagement {
      */
     public static void updatePartyOwner(UUID newOwner, String partyID) throws IOException, ParseException {
         JSONParser jsonParser = new JSONParser();
-        File partyFile = new File(PartyChat.partyFolder, partyID + ".json");
+        File partyFile = new File(PartyChat.getInstance().partyFolder.toFile(), partyID + ".json");
         reader = new FileReader(partyFile);
         JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
         reader.close();
@@ -125,7 +125,7 @@ public class PartyManagement {
      */
     public static void removePlayerFromParty(UUID oldPlayer, String partyID) throws IOException, ParseException {
         JSONParser jsonParser = new JSONParser();
-        File partyFile = new File(PartyChat.partyFolder, partyID + ".json");
+        File partyFile = new File(PartyChat.getInstance().partyFolder.toFile(), partyID + ".json");
         reader = new FileReader(partyFile);
         JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
         reader.close();
@@ -146,7 +146,7 @@ public class PartyManagement {
      * @throws ParseException
      */
     public static String lookupParty(UUID player) throws IOException, ParseException {
-        File[] partyDirectory = PartyChat.partyFolder.listFiles();
+        File[] partyDirectory = PartyChat.getInstance().partyFolder.toFile().listFiles();
         if (partyDirectory != null) {
             JSONParser parser = new JSONParser();
             for (File currentFile : partyDirectory) {
@@ -184,7 +184,7 @@ public class PartyManagement {
      * @throws ParseException
      */
     public static UUID lookupOwner(String partyID) throws IOException, ParseException {
-        File partyFile = new File(PartyChat.partyFolder, partyID + ".json");
+        File partyFile = new File(PartyChat.getInstance().partyFolder.toFile(), partyID + ".json");
         UUID owner;
         JSONParser parser = new JSONParser();
         reader = new FileReader(partyFile);
@@ -205,7 +205,7 @@ public class PartyManagement {
      */
     public static void sendPartyMessage(String message, String partyID) throws IOException, ParseException {
         JSONParser jsonParser = new JSONParser();
-        File partyFile = new File(PartyChat.partyFolder, partyID + ".json");
+        File partyFile = new File(PartyChat.getInstance().partyFolder.toFile(), partyID + ".json");
         reader = new FileReader(partyFile);
         JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
         reader.close();
@@ -228,7 +228,7 @@ public class PartyManagement {
      */
     public static ArrayList<UUID> listPartyMembers(String partyID) throws IOException, ParseException {
         JSONParser jsonParser = new JSONParser();
-        File partyFile = new File(PartyChat.partyFolder, partyID + ".json");
+        File partyFile = new File(PartyChat.getInstance().partyFolder.toFile(), partyID + ".json");
         reader = new FileReader(partyFile);
         JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
         reader.close();
@@ -258,7 +258,7 @@ public class PartyManagement {
         members.add(player.toString());
         partyObject.put("members", members);
 
-        File partyFile = new File(PartyChat.partyFolder,  random.toString() + ".json");
+        File partyFile = new File(PartyChat.getInstance().partyFolder.toFile(), random.toString() + ".json");
         writer = new FileWriter(partyFile);
         writer.write(partyObject.toJSONString());
         writer.close();

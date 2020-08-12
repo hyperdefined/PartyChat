@@ -11,12 +11,14 @@ import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public final class PartyChat extends JavaPlugin {
 
     private static PartyChat instance;
 
-    public static final File partyFolder = new File("DMC/parties");
+    public final Path partyFolder = Paths.get(this.getDataFolder() + File.separator + "parties");
 
     public static PartyChat getInstance() {
         return instance;
@@ -30,8 +32,8 @@ public final class PartyChat extends JavaPlugin {
         this.getCommand("party").setExecutor(new CommandParty());
         this.getCommand("pc").setExecutor(new CommandPartyChatMessage());
 
-        if (!partyFolder.exists()) {
-            if (!partyFolder.mkdir()) {
+        if (!partyFolder.toFile().exists()) {
+            if (!partyFolder.toFile().mkdir()) {
                 Bukkit.getLogger().warning("Unable to create parties folder! Please create the folder!");
             } else {
                 Bukkit.getLogger().info("Creating parties folder.");
