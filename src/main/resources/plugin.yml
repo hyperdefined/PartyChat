@@ -7,7 +7,5 @@ description: Simple party chat.
 commands:
   party:
     description: The main party command.
-    usage: /party
   pc:
-    description: Toggle party chat on and off.
-    usage: /pc
+    description: Send private party messages.
