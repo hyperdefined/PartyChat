@@ -9,5 +9,5 @@ A simple party chat plugin.
 - Parties save after server restarts.
 - Players can only be in 1 party at a time.
 
-### Download
+## Download
 To download the latest build, head over to the [Actions](https://github.com/DESTROYMC-NET/PartyChat/actions) page and grab the latest build. It will download a zip file. Inside the zip file is the jar file.
