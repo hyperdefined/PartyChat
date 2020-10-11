@@ -33,7 +33,7 @@ public final class PartyChat extends JavaPlugin {
         this.getCommand("pc").setExecutor(new CommandPartyChatMessage());
 
         if (!partyFolder.toFile().exists()) {
-            if (!partyFolder.toFile().mkdir()) {
+            if (!partyFolder.toFile().mkdirs()) {
                 Bukkit.getLogger().warning("Unable to create parties folder! Please create the folder!");
             } else {
                 Bukkit.getLogger().info("Creating parties folder.");
