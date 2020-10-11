@@ -2,7 +2,7 @@ name: PartyChat
 version: ${project.version}
 main: lol.hyper.partychat.PartyChat
 api-version: 1.16
-authors: [hyperdefined]
+author: hyperdefined
 description: Simple party chat.
 commands:
   party:
