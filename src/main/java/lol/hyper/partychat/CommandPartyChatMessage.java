@@ -16,6 +16,8 @@ import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CommandPartyChatMessage implements CommandExecutor {
     @Override
@@ -30,6 +32,13 @@ public class CommandPartyChatMessage implements CommandExecutor {
                     for (String x : args) {
                         str.append(x).append(" ");
                     }
+
+                    Pattern greenTextPattern = Pattern.compile("^>(\\S*).*");
+                    Matcher greenTextMatcher = greenTextPattern.matcher(str.toString());
+                    if (greenTextMatcher.find()) {
+                        str.insert(0, ChatColor.GREEN);
+                    }
+
                     String playerMessage = PartyChat.MESSAGE_PREFIX + "<" + Bukkit.getPlayer(player).getName() + "> " + str.toString();
                     PartyManagement.sendPartyMessage(playerMessage, PartyManagement.lookupParty(player));
                     Bukkit.getLogger().info("[" + PartyManagement.lookupParty(player) + "] " + playerMessage);
