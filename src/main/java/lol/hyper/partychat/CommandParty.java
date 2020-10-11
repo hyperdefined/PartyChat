@@ -13,13 +13,16 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
-public class CommandParty implements CommandExecutor {
+public class CommandParty implements TabExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         UUID commandSender = Bukkit.getPlayer(sender.getName()).getUniqueId();
@@ -257,5 +260,10 @@ public class CommandParty implements CommandExecutor {
             sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid command. Do /party help instead.");
         }
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        return Arrays.asList("create", "invite", "accept", "deny", "kick", "leave", "disband", "info", "transfer", "help");
     }
 }
