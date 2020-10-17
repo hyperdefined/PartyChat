@@ -170,7 +170,7 @@ public class PartyManagement {
         try {
             writer = new FileWriter(partyFile);
             writer.write(jsonObject.toJSONString());
-            PartyChat.getInstance().logger.info("Removing player " + oldPlayer + " to party " + partyID);
+            PartyChat.getInstance().logger.info("Removing player " + oldPlayer + " from party " + partyID);
             writer.close();
         } catch (IOException e) {
             PartyChat.getInstance().logger.severe("Unable to write party file " + partyFile.getAbsolutePath());
