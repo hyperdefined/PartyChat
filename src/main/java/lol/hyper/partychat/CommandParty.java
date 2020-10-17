@@ -27,7 +27,7 @@ public class CommandParty implements TabExecutor {
             sender.sendMessage(ChatColor.RED + "You must be a player for this command.");
             return true;
         }
-        UUID commandSender = Bukkit.getPlayer(sender.getName()).getUniqueId();
+        UUID commandSender = Bukkit.getPlayerExact(sender.getName()).getUniqueId();
         if (args.length == 0) {
             sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /party help for commands.");
         } else if (args[0].equalsIgnoreCase("create")) {
@@ -48,7 +48,7 @@ public class CommandParty implements TabExecutor {
                 if (PartyManagement.lookupParty(commandSender) == null) {
                     sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You are not in a party. Do /party create to make one.");
                 } else if (PartyManagement.isPlayerOwner(commandSender)) {
-                    if (Bukkit.getPlayer(args[1]) != null) {
+                    if (Bukkit.getPlayerExact(args[1]) != null) {
                         UUID inviteReceiver = Bukkit.getPlayerExact(args[1]).getUniqueId();
                         if (PartyManagement.pendingInvites.containsKey(inviteReceiver)) {
                             sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player already has a pending invite.");
@@ -123,7 +123,7 @@ public class CommandParty implements TabExecutor {
                 if (PartyManagement.lookupParty(commandSender) == null) {
                     sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You are not in a party. Do /party create to make one.");
                 } else if (PartyManagement.isPlayerOwner(commandSender)) {
-                    if (Bukkit.getPlayer(args[1]) != null) {
+                    if (Bukkit.getPlayerExact(args[1]) != null) {
                         UUID kickedPlayer = Bukkit.getPlayerExact(args[1]).getUniqueId();
                         String partyPlayerKicked = PartyManagement.lookupParty(kickedPlayer);
                         String partyPlayerSender = PartyManagement.lookupOwner(PartyManagement.lookupParty(commandSender)).toString();
@@ -149,7 +149,7 @@ public class CommandParty implements TabExecutor {
                 if (PartyManagement.lookupParty(commandSender) == null) {
                     sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You are not in a party. Do /party create to make one.");
                 } else if (PartyManagement.isPlayerOwner(commandSender)) {
-                    if (Bukkit.getPlayer(args[1]) != null) {
+                    if (Bukkit.getPlayerExact(args[1]) != null) {
                         UUID newOwner = Bukkit.getPlayerExact(args[1]).getUniqueId();
                         String partyPlayerKicked = PartyManagement.lookupParty(newOwner);
                         String partyPlayerSender = PartyManagement.lookupOwner(PartyManagement.lookupParty(commandSender)).toString();
