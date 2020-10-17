@@ -1,7 +1,7 @@
-/**
- * CommandParty.java
- * Created on 4/15/2020
- * - hyperdefined
+/*
+  CommandParty.java
+  Created on 4/15/2020
+  - hyperdefined
  */
 
 package lol.hyper.partychat.tools;

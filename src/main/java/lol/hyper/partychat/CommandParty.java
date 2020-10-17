@@ -1,7 +1,7 @@
-/**
- * CommandParty.java
- * Created on 4/15/2020
- * - hyperdefined
+/*
+  CommandParty.java
+  Created on 4/15/2020
+  - hyperdefined
  */
 
 package lol.hyper.partychat;
@@ -11,12 +11,9 @@ import lol.hyper.partychat.tools.UUIDLookup;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
-import org.json.simple.parser.ParseException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

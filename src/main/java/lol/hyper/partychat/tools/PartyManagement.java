@@ -1,7 +1,7 @@
-/**
- * PartyMangement.java
- * Created on 4/15/2020
- * - hyperdefined
+/*
+  PartyMangement.java
+  Created on 4/15/2020
+  - hyperdefined
  */
 
 package lol.hyper.partychat.tools;
@@ -240,7 +240,6 @@ public class PartyManagement {
      * Send a message to everyone in a party.
      *
      * @param message Message to send the whole party.
-     * @return returns their party id if they have one
      */
     public static void sendPartyMessage(String message, String partyID) {
         JSONParser jsonParser = new JSONParser();
