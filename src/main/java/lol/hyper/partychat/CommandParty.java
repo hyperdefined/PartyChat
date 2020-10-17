@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.TabExecutor;
 
 import java.util.ArrayList;
@@ -22,6 +23,10 @@ import java.util.UUID;
 public class CommandParty implements TabExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (sender instanceof ConsoleCommandSender) {
+            sender.sendMessage(ChatColor.RED + "You must be a player for this command.");
+            return true;
+        }
         UUID commandSender = Bukkit.getPlayer(sender.getName()).getUniqueId();
         if (args.length == 0) {
             sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /party help for commands.");
@@ -35,7 +40,6 @@ public class CommandParty implements TabExecutor {
                 } else {
                     sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You are already in a party.");
                 }
-
             }
         } else if (args[0].equalsIgnoreCase("invite")) {
             if (args.length == 1 || args.length > 2) {

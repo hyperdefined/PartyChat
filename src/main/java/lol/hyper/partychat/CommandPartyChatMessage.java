@@ -12,6 +12,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -20,6 +21,10 @@ import java.util.regex.Pattern;
 public class CommandPartyChatMessage implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (sender instanceof ConsoleCommandSender) {
+            sender.sendMessage(ChatColor.RED + "You must be a player for this command.");
+            return true;
+        }
         UUID player = Bukkit.getPlayerExact(sender.getName()).getUniqueId();
         if (args.length < 1) {
             sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /pc <message> instead.");
