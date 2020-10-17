@@ -129,9 +129,11 @@ public class CommandParty implements TabExecutor {
                         String partyPlayerSender = PartyManagement.lookupOwner(PartyManagement.lookupParty(commandSender)).toString();
                         if (partyPlayerSender.equals(partyPlayerKicked)) {
                             sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player is not in your party.");
-                        } else {
+                        } else if (!commandSender.equals(PartyManagement.lookupOwner(partyPlayerSender))) {
                             PartyManagement.sendPartyMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + Bukkit.getPlayer(kickedPlayer).getName() + " has been kicked from the party.", PartyManagement.lookupParty(kickedPlayer));
                             PartyManagement.removePlayerFromParty(kickedPlayer, PartyManagement.lookupParty(kickedPlayer));
+                        } else {
+                            sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You cannot kick yourself from the party.");
                         }
                     } else {
                         sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player was not found.");
