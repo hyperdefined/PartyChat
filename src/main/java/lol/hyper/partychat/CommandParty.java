@@ -215,6 +215,10 @@ public class CommandParty implements TabExecutor {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        return Arrays.asList("create", "invite", "accept", "deny", "kick", "leave", "disband", "info", "transfer", "help");
+        if (args.length == 0) {
+            return Arrays.asList("create", "invite", "accept", "deny", "kick", "leave", "disband", "info", "transfer", "help");
+        } else {
+            return null;
+        }
     }
 }
