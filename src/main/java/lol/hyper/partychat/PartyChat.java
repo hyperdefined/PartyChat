@@ -13,6 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Logger;
 
 public final class PartyChat extends JavaPlugin {
 
@@ -26,6 +27,8 @@ public final class PartyChat extends JavaPlugin {
 
     public static final String MESSAGE_PREFIX = ChatColor.GREEN + "[Party] " + ChatColor.RESET;
 
+    public Logger logger = this.getLogger();
+
     @Override
     public void onEnable() {
         instance = this;
@@ -34,9 +37,9 @@ public final class PartyChat extends JavaPlugin {
 
         if (!partyFolder.toFile().exists()) {
             if (!partyFolder.toFile().mkdirs()) {
-                Bukkit.getLogger().warning("Unable to create parties folder! Please create the folder!");
+                logger.severe("Unable to create the party folder " + partyFolder + "! Please manually create this folder because things will break!");
             } else {
-                Bukkit.getLogger().info("Creating parties folder.");
+                logger.info("Creating parties folder for data storage.");
             }
         }
     }

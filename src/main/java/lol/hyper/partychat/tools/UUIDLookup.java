@@ -6,6 +6,7 @@
 
 package lol.hyper.partychat.tools;
 
+import lol.hyper.partychat.PartyChat;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -27,6 +28,7 @@ public class UUIDLookup {
             JSONObject nameObject = (JSONObject) JSONValue.parseWithException(playerSlot);
             return nameObject.get("name").toString();
         } catch (IOException | ParseException e) {
+            PartyChat.getInstance().logger.severe("Unable to lookup UUID for player " + player);
             e.printStackTrace();
         }
         return "error";

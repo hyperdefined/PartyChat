@@ -44,6 +44,7 @@ public class PartyManagement {
         Bukkit.getPlayer(receiver).sendMessage(ChatColor.DARK_AQUA + "You have received a party invite from " + ChatColor.GOLD + Bukkit.getPlayer(sender).getName() + ".");
         Bukkit.getPlayer(receiver).sendMessage(ChatColor.DARK_AQUA + "To join, type /party accept. To deny, type /party deny.");
         Bukkit.getPlayer(sender).sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.DARK_AQUA + "Invite sent!");
+        PartyChat.getInstance().logger.info(sender + " sent an invite to " + receiver + " for party " + partyID);
     }
 
     /**
@@ -58,9 +59,11 @@ public class PartyManagement {
         if (answer) {
             addPlayerToParty(pendingPlayer, partyID);
             sendPartyMessage(PartyChat.MESSAGE_PREFIX + ChatColor.DARK_AQUA + Bukkit.getPlayer(pendingPlayer).getName() + " has joined the party!", partyID);
+            PartyChat.getInstance().logger.info("Player " + pendingPlayer + " has accepted invite for party " + partyID);
         } else {
             Bukkit.getPlayer(lookupOwner(partyID)).sendMessage(PartyChat.MESSAGE_PREFIX+ ChatColor.RED + Bukkit.getPlayer(pendingPlayer).getName() + " has denied the invite.");
             Bukkit.getPlayer(pendingPlayer).sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You denied the party invite.");
+            PartyChat.getInstance().logger.info("Player " + pendingPlayer + " has denied invite for party " + partyID);
         }
     }
 
@@ -72,8 +75,10 @@ public class PartyManagement {
     public static void deleteParty(String partyID) {
         File partyFile = new File(PartyChat.getInstance().partyFolder.toFile(), partyID + ".json");
         if (!partyFile.delete()) {
-            Bukkit.getLogger().warning("Cannot delete party! Please delete: " + partyFile.getAbsolutePath());
+            PartyChat.getInstance().logger.warning("Cannot delete party! Please delete: " + partyFile.getAbsolutePath());
+            return;
         }
+        PartyChat.getInstance().logger.info("Deleting party " + partyID);
     }
 
     /**
@@ -91,7 +96,7 @@ public class PartyManagement {
             jsonObject = (JSONObject) jsonParser.parse(reader);
             reader.close();
         } catch (ParseException | IOException e) {
-            Bukkit.getLogger().severe("Unable to read party file " + partyFile.getAbsolutePath());
+            PartyChat.getInstance().logger.severe("Unable to read party file " + partyFile.getAbsolutePath());
             e.printStackTrace();
             return;
         }
@@ -102,8 +107,9 @@ public class PartyManagement {
             writer = new FileWriter(partyFile);
             writer.write(jsonObject.toJSONString());
             writer.close();
+            PartyChat.getInstance().logger.info("Adding player " + newMember + " to party " + partyID);
         } catch (IOException e) {
-            Bukkit.getLogger().severe("Unable to write party file " + partyFile.getAbsolutePath());
+            PartyChat.getInstance().logger.severe("Unable to write party file " + partyFile.getAbsolutePath());
             e.printStackTrace();
         }
     }
@@ -123,7 +129,7 @@ public class PartyManagement {
             jsonObject = (JSONObject) jsonParser.parse(reader);
             reader.close();
         } catch (ParseException | IOException e) {
-            Bukkit.getLogger().severe("Unable to read party file " + partyFile.getAbsolutePath());
+            PartyChat.getInstance().logger.severe("Unable to read party file " + partyFile.getAbsolutePath());
             e.printStackTrace();
             return;
         }
@@ -132,8 +138,9 @@ public class PartyManagement {
             writer = new FileWriter(partyFile);
             writer.write(jsonObject.toJSONString());
             writer.close();
+            PartyChat.getInstance().logger.info("Updating party ownership for party " + partyID + ". New owner is now " + newOwner);
         } catch (IOException e) {
-            Bukkit.getLogger().severe("Unable to write party file " + partyFile.getAbsolutePath());
+            PartyChat.getInstance().logger.severe("Unable to write party file " + partyFile.getAbsolutePath());
             e.printStackTrace();
         }
     }
@@ -153,7 +160,7 @@ public class PartyManagement {
             jsonObject = (JSONObject) jsonParser.parse(reader);
             reader.close();
         } catch (ParseException | IOException e) {
-            Bukkit.getLogger().severe("Unable to read party file " + partyFile.getAbsolutePath());
+            PartyChat.getInstance().logger.severe("Unable to read party file " + partyFile.getAbsolutePath());
             e.printStackTrace();
             return;
         }
@@ -163,9 +170,10 @@ public class PartyManagement {
         try {
             writer = new FileWriter(partyFile);
             writer.write(jsonObject.toJSONString());
+            PartyChat.getInstance().logger.info("Removing player " + oldPlayer + " to party " + partyID);
             writer.close();
         } catch (IOException e) {
-            Bukkit.getLogger().severe("Unable to write party file " + partyFile.getAbsolutePath());
+            PartyChat.getInstance().logger.severe("Unable to write party file " + partyFile.getAbsolutePath());
             e.printStackTrace();
         }
     }
@@ -188,7 +196,7 @@ public class PartyManagement {
                     reader.close();
                 } catch (ParseException | IOException e) {
                     e.printStackTrace();
-                    Bukkit.getLogger().severe("Unable to read party file " + currentFile.getAbsolutePath());
+                    PartyChat.getInstance().logger.severe("Unable to read party file " + currentFile.getAbsolutePath());
                     return null;
                 }
                 JSONObject currentJSON = (JSONObject) obj;
@@ -227,7 +235,7 @@ public class PartyManagement {
             obj = parser.parse(reader);
             reader.close();
         } catch (ParseException | IOException e) {
-            Bukkit.getLogger().severe("Unable to read party file " + partyFile.getAbsolutePath());
+            PartyChat.getInstance().logger.severe("Unable to read party file " + partyFile.getAbsolutePath());
             e.printStackTrace();
             return null;
         }
@@ -251,7 +259,7 @@ public class PartyManagement {
             reader.close();
         } catch (ParseException | IOException e) {
             e.printStackTrace();
-            Bukkit.getLogger().severe("Unable to read party file " + partyFile.getAbsolutePath());
+            PartyChat.getInstance().logger.severe("Unable to read party file " + partyFile.getAbsolutePath());
             return;
         }
         JSONArray partyMembers = (JSONArray) jsonObject.get("members");
@@ -312,8 +320,9 @@ public class PartyManagement {
             writer = new FileWriter(partyFile);
             writer.write(partyObject.toJSONString());
             writer.close();
+            PartyChat.getInstance().logger.info("Creating new party with owner " + player);
         } catch (IOException e) {
-            Bukkit.getLogger().severe("Unable to write party file " + partyFile.getAbsolutePath());
+            PartyChat.getInstance().logger.severe("Unable to write party file " + partyFile.getAbsolutePath());
             e.printStackTrace();
         }
     }

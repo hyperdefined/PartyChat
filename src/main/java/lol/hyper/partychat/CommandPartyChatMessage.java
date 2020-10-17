@@ -38,7 +38,7 @@ public class CommandPartyChatMessage implements CommandExecutor {
 
                 String playerMessage = PartyChat.MESSAGE_PREFIX + "<" + Bukkit.getPlayer(player).getName() + "> " + str.toString();
                 PartyManagement.sendPartyMessage(playerMessage, PartyManagement.lookupParty(player));
-                Bukkit.getLogger().info("[" + PartyManagement.lookupParty(player) + "] " + playerMessage);
+                PartyChat.getInstance().logger.info("[" + PartyManagement.lookupParty(player) + "] " + playerMessage);
             } else {
                 sender.sendMessage(PartyChat.MESSAGE_PREFIX+ ChatColor.RED + "You are not in a party. Do /party create to make one.");
             }
