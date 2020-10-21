@@ -22,8 +22,8 @@ import java.util.UUID;
 
 public class CommandParty implements TabExecutor {
 
-    private PartyChat partyChat;
-    private PartyManagement partyManagement;
+    private final PartyChat partyChat;
+    private final PartyManagement partyManagement;
 
     public CommandParty(PartyChat partyChat, PartyManagement partyManagement) {
         this.partyChat = partyChat;

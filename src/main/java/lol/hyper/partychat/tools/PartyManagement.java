@@ -32,7 +32,7 @@ public class PartyManagement {
     private static FileWriter writer;
     private static FileReader reader;
 
-    private PartyChat partyChat;
+    private final PartyChat partyChat;
 
     public PartyManagement(PartyChat partyChat) {
         this.partyChat = partyChat;
