@@ -6,7 +6,7 @@
 
 package lol.hyper.partychat;
 
-import org.bukkit.Bukkit;
+import lol.hyper.partychat.tools.PartyManagement;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -17,23 +17,23 @@ import java.util.logging.Logger;
 
 public final class PartyChat extends JavaPlugin {
 
-    private static PartyChat instance;
-
     public final Path partyFolder = Paths.get(this.getDataFolder() + File.separator + "parties");
-
-    public static PartyChat getInstance() {
-        return instance;
-    }
 
     public static final String MESSAGE_PREFIX = ChatColor.GREEN + "[Party] " + ChatColor.RESET;
 
     public Logger logger = this.getLogger();
 
+    public CommandParty commandParty;
+    public CommandPartyChatMessage commandPartyChatMessage;
+    public PartyManagement partyManagement;
+
     @Override
     public void onEnable() {
-        instance = this;
-        this.getCommand("party").setExecutor(new CommandParty());
-        this.getCommand("pc").setExecutor(new CommandPartyChatMessage());
+        partyManagement = new PartyManagement(this);
+        commandParty = new CommandParty(this, partyManagement);
+        commandPartyChatMessage = new CommandPartyChatMessage(this, partyManagement);
+        this.getCommand("party").setExecutor(commandParty);
+        this.getCommand("pc").setExecutor(commandPartyChatMessage);
 
         if (!partyFolder.toFile().exists()) {
             if (!partyFolder.toFile().mkdirs()) {

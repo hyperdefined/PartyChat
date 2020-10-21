@@ -32,6 +32,12 @@ public class PartyManagement {
     private static FileWriter writer;
     private static FileReader reader;
 
+    private PartyChat partyChat;
+
+    public PartyManagement(PartyChat partyChat) {
+        this.partyChat = partyChat;
+    }
+
     /**
      * Invite player to the party.
      *
@@ -39,12 +45,12 @@ public class PartyManagement {
      * @param sender   UUID of player sending the invite.
      * @param partyID  Party ID of the person inviting.
      */
-    public static void invitePlayer(UUID receiver, UUID sender, String partyID) {
+    public void invitePlayer(UUID receiver, UUID sender, String partyID) {
         pendingInvites.put(receiver, partyID);
         Bukkit.getPlayer(receiver).sendMessage(ChatColor.DARK_AQUA + "You have received a party invite from " + ChatColor.GOLD + Bukkit.getPlayer(sender).getName() + ".");
         Bukkit.getPlayer(receiver).sendMessage(ChatColor.DARK_AQUA + "To join, type /party accept. To deny, type /party deny.");
         Bukkit.getPlayer(sender).sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.DARK_AQUA + "Invite sent!");
-        PartyChat.getInstance().logger.info(sender + " sent an invite to " + receiver + " for party " + partyID);
+        partyChat.logger.info(sender + " sent an invite to " + receiver + " for party " + partyID);
     }
 
     /**
@@ -54,16 +60,16 @@ public class PartyManagement {
      * @param partyID Party ID of person who is being invited.
      * @param answer Player's response to being invited.
      */
-    public static void removeInvite(UUID pendingPlayer, String partyID, boolean answer) {
+    public void removeInvite(UUID pendingPlayer, String partyID, boolean answer) {
         pendingInvites.remove(pendingPlayer);
         if (answer) {
             addPlayerToParty(pendingPlayer, partyID);
             sendPartyMessage(PartyChat.MESSAGE_PREFIX + ChatColor.DARK_AQUA + Bukkit.getPlayer(pendingPlayer).getName() + " has joined the party!", partyID);
-            PartyChat.getInstance().logger.info("Player " + pendingPlayer + " has accepted invite for party " + partyID);
+            partyChat.logger.info("Player " + pendingPlayer + " has accepted invite for party " + partyID);
         } else {
             Bukkit.getPlayer(lookupOwner(partyID)).sendMessage(PartyChat.MESSAGE_PREFIX+ ChatColor.RED + Bukkit.getPlayer(pendingPlayer).getName() + " has denied the invite.");
             Bukkit.getPlayer(pendingPlayer).sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You denied the party invite.");
-            PartyChat.getInstance().logger.info("Player " + pendingPlayer + " has denied invite for party " + partyID);
+            partyChat.logger.info("Player " + pendingPlayer + " has denied invite for party " + partyID);
         }
     }
 
@@ -72,13 +78,13 @@ public class PartyManagement {
      *
      * @param partyID Party ID of party to delete.
      */
-    public static void deleteParty(String partyID) {
-        File partyFile = new File(PartyChat.getInstance().partyFolder.toFile(), partyID + ".json");
+    public void deleteParty(String partyID) {
+        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
         if (!partyFile.delete()) {
-            PartyChat.getInstance().logger.warning("Cannot delete party! Please delete: " + partyFile.getAbsolutePath());
+            partyChat.logger.warning("Cannot delete party! Please delete: " + partyFile.getAbsolutePath());
             return;
         }
-        PartyChat.getInstance().logger.info("Deleting party " + partyID);
+        partyChat.logger.info("Deleting party " + partyID);
     }
 
     /**
@@ -87,16 +93,16 @@ public class PartyManagement {
      * @param newMember UUID of new player to add to party.
      * @param partyID   Party ID the new player is joining.
      */
-    public static void addPlayerToParty(UUID newMember, String partyID) {
+    public void addPlayerToParty(UUID newMember, String partyID) {
         JSONParser jsonParser = new JSONParser();
-        File partyFile = new File(PartyChat.getInstance().partyFolder.toFile(), partyID + ".json");
+        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
         JSONObject jsonObject;
         try {
             reader = new FileReader(partyFile);
             jsonObject = (JSONObject) jsonParser.parse(reader);
             reader.close();
         } catch (ParseException | IOException e) {
-            PartyChat.getInstance().logger.severe("Unable to read party file " + partyFile.getAbsolutePath());
+            partyChat.logger.severe("Unable to read party file " + partyFile.getAbsolutePath());
             e.printStackTrace();
             return;
         }
@@ -107,9 +113,9 @@ public class PartyManagement {
             writer = new FileWriter(partyFile);
             writer.write(jsonObject.toJSONString());
             writer.close();
-            PartyChat.getInstance().logger.info("Adding player " + newMember + " to party " + partyID);
+            partyChat.logger.info("Adding player " + newMember + " to party " + partyID);
         } catch (IOException e) {
-            PartyChat.getInstance().logger.severe("Unable to write party file " + partyFile.getAbsolutePath());
+            partyChat.logger.severe("Unable to write party file " + partyFile.getAbsolutePath());
             e.printStackTrace();
         }
     }
@@ -120,16 +126,16 @@ public class PartyManagement {
      * @param newOwner UUID of new party owner.
      * @param partyID  Party ID of new owner.
      */
-    public static void updatePartyOwner(UUID newOwner, String partyID) {
+    public void updatePartyOwner(UUID newOwner, String partyID) {
         JSONParser jsonParser = new JSONParser();
-        File partyFile = new File(PartyChat.getInstance().partyFolder.toFile(), partyID + ".json");
+        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
         JSONObject jsonObject;
         try {
             reader = new FileReader(partyFile);
             jsonObject = (JSONObject) jsonParser.parse(reader);
             reader.close();
         } catch (ParseException | IOException e) {
-            PartyChat.getInstance().logger.severe("Unable to read party file " + partyFile.getAbsolutePath());
+            partyChat.logger.severe("Unable to read party file " + partyFile.getAbsolutePath());
             e.printStackTrace();
             return;
         }
@@ -138,9 +144,9 @@ public class PartyManagement {
             writer = new FileWriter(partyFile);
             writer.write(jsonObject.toJSONString());
             writer.close();
-            PartyChat.getInstance().logger.info("Updating party ownership for party " + partyID + ". New owner is now " + newOwner);
+            partyChat.logger.info("Updating party ownership for party " + partyID + ". New owner is now " + newOwner);
         } catch (IOException e) {
-            PartyChat.getInstance().logger.severe("Unable to write party file " + partyFile.getAbsolutePath());
+            partyChat.logger.severe("Unable to write party file " + partyFile.getAbsolutePath());
             e.printStackTrace();
         }
     }
@@ -151,16 +157,16 @@ public class PartyManagement {
      * @param oldPlayer UUID of player being removed from party.
      * @param partyID   Party ID player is being removed from.
      */
-    public static void removePlayerFromParty(UUID oldPlayer, String partyID) {
+    public void removePlayerFromParty(UUID oldPlayer, String partyID) {
         JSONParser jsonParser = new JSONParser();
-        File partyFile = new File(PartyChat.getInstance().partyFolder.toFile(), partyID + ".json");
+        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
         JSONObject jsonObject;
         try {
             reader = new FileReader(partyFile);
             jsonObject = (JSONObject) jsonParser.parse(reader);
             reader.close();
         } catch (ParseException | IOException e) {
-            PartyChat.getInstance().logger.severe("Unable to read party file " + partyFile.getAbsolutePath());
+            partyChat.logger.severe("Unable to read party file " + partyFile.getAbsolutePath());
             e.printStackTrace();
             return;
         }
@@ -170,10 +176,10 @@ public class PartyManagement {
         try {
             writer = new FileWriter(partyFile);
             writer.write(jsonObject.toJSONString());
-            PartyChat.getInstance().logger.info("Removing player " + oldPlayer + " from party " + partyID);
+            partyChat.logger.info("Removing player " + oldPlayer + " from party " + partyID);
             writer.close();
         } catch (IOException e) {
-            PartyChat.getInstance().logger.severe("Unable to write party file " + partyFile.getAbsolutePath());
+            partyChat.logger.severe("Unable to write party file " + partyFile.getAbsolutePath());
             e.printStackTrace();
         }
     }
@@ -184,8 +190,8 @@ public class PartyManagement {
      * @param player UUID of player to check party.
      * @return Returns their party id if they have one.
      */
-    public static String lookupParty(UUID player) {
-        File[] partyDirectory = PartyChat.getInstance().partyFolder.toFile().listFiles();
+    public String lookupParty(UUID player) {
+        File[] partyDirectory = partyChat.partyFolder.toFile().listFiles();
         if (partyDirectory != null) {
             JSONParser parser = new JSONParser();
             for (File currentFile : partyDirectory) {
@@ -196,7 +202,7 @@ public class PartyManagement {
                     reader.close();
                 } catch (ParseException | IOException e) {
                     e.printStackTrace();
-                    PartyChat.getInstance().logger.severe("Unable to read party file " + currentFile.getAbsolutePath());
+                    partyChat.logger.severe("Unable to read party file " + currentFile.getAbsolutePath());
                     return null;
                 }
                 JSONObject currentJSON = (JSONObject) obj;
@@ -215,7 +221,7 @@ public class PartyManagement {
      * @param player UUID of player to check.
      * @return Returns returns if player is owner.
      */
-    public static boolean isPlayerOwner(UUID player) {
+    public boolean isPlayerOwner(UUID player) {
         return lookupOwner(lookupParty(player)).equals(player);
     }
 
@@ -225,8 +231,8 @@ public class PartyManagement {
      * @param partyID Party ID to see who owner is.
      * @return returns their party id if they have one
      */
-    public static UUID lookupOwner(String partyID) {
-        File partyFile = new File(PartyChat.getInstance().partyFolder.toFile(), partyID + ".json");
+    public UUID lookupOwner(String partyID) {
+        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
         UUID owner;
         JSONParser parser = new JSONParser();
         Object obj;
@@ -235,7 +241,7 @@ public class PartyManagement {
             obj = parser.parse(reader);
             reader.close();
         } catch (ParseException | IOException e) {
-            PartyChat.getInstance().logger.severe("Unable to read party file " + partyFile.getAbsolutePath());
+            partyChat.logger.severe("Unable to read party file " + partyFile.getAbsolutePath());
             e.printStackTrace();
             return null;
         }
@@ -249,9 +255,9 @@ public class PartyManagement {
      *
      * @param message Message to send the whole party.
      */
-    public static void sendPartyMessage(String message, String partyID) {
+    public void sendPartyMessage(String message, String partyID) {
         JSONParser jsonParser = new JSONParser();
-        File partyFile = new File(PartyChat.getInstance().partyFolder.toFile(), partyID + ".json");
+        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
         JSONObject jsonObject;
         try {
             reader = new FileReader(partyFile);
@@ -259,7 +265,7 @@ public class PartyManagement {
             reader.close();
         } catch (ParseException | IOException e) {
             e.printStackTrace();
-            PartyChat.getInstance().logger.severe("Unable to read party file " + partyFile.getAbsolutePath());
+            partyChat.logger.severe("Unable to read party file " + partyFile.getAbsolutePath());
             return;
         }
         JSONArray partyMembers = (JSONArray) jsonObject.get("members");
@@ -277,9 +283,9 @@ public class PartyManagement {
      * @param partyID Party ID to get list of members.
      * @return returns the list of party members
      */
-    public static ArrayList<UUID> listPartyMembers(String partyID) {
+    public ArrayList<UUID> listPartyMembers(String partyID) {
         JSONParser jsonParser = new JSONParser();
-        File partyFile = new File(PartyChat.getInstance().partyFolder.toFile(), partyID + ".json");
+        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
         JSONObject jsonObject;
         try {
             reader = new FileReader(partyFile);
@@ -302,7 +308,7 @@ public class PartyManagement {
      *
      * @param player UUID of new party owner.
      */
-    public static void createParty(UUID player) {
+    public void createParty(UUID player) {
         String charset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         StringBuilder random = new StringBuilder();
         for (int i = 0; i < 10; i++) {
@@ -315,14 +321,14 @@ public class PartyManagement {
         members.add(player.toString());
         partyObject.put("members", members);
 
-        File partyFile = new File(PartyChat.getInstance().partyFolder.toFile(), random.toString() + ".json");
+        File partyFile = new File(partyChat.partyFolder.toFile(), random.toString() + ".json");
         try {
             writer = new FileWriter(partyFile);
             writer.write(partyObject.toJSONString());
             writer.close();
-            PartyChat.getInstance().logger.info("Creating new party with owner " + player);
+            partyChat.logger.info("Creating new party with owner " + player);
         } catch (IOException e) {
-            PartyChat.getInstance().logger.severe("Unable to write party file " + partyFile.getAbsolutePath());
+            partyChat.logger.severe("Unable to write party file " + partyFile.getAbsolutePath());
             e.printStackTrace();
         }
     }

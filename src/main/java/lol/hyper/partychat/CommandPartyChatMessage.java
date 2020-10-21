@@ -19,6 +19,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CommandPartyChatMessage implements CommandExecutor {
+
+    private final PartyChat partyChat;
+    private final PartyManagement partyManagement;
+
+    public CommandPartyChatMessage(PartyChat partyChat, PartyManagement partyManagement) {
+        this.partyChat = partyChat;
+        this.partyManagement = partyManagement;
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof ConsoleCommandSender) {
@@ -29,7 +38,7 @@ public class CommandPartyChatMessage implements CommandExecutor {
         if (args.length < 1) {
             sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /pc <message> instead.");
         } else {
-            if (PartyManagement.lookupParty(player) != null) {
+            if (partyManagement.lookupParty(player) != null) {
                 StringBuilder str = new StringBuilder();
                 for (String x : args) {
                     str.append(x).append(" ");
@@ -42,8 +51,8 @@ public class CommandPartyChatMessage implements CommandExecutor {
                 }
 
                 String playerMessage = PartyChat.MESSAGE_PREFIX + "<" + Bukkit.getPlayer(player).getName() + "> " + str.toString();
-                PartyManagement.sendPartyMessage(playerMessage, PartyManagement.lookupParty(player));
-                PartyChat.getInstance().logger.info("[" + PartyManagement.lookupParty(player) + "] " + playerMessage);
+                partyManagement.sendPartyMessage(playerMessage, partyManagement.lookupParty(player));
+                partyChat.logger.info("[" + partyManagement.lookupParty(player) + "] " + playerMessage);
             } else {
                 sender.sendMessage(PartyChat.MESSAGE_PREFIX+ ChatColor.RED + "You are not in a party. Do /party create to make one.");
             }
