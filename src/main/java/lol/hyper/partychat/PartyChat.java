@@ -21,7 +21,7 @@ public final class PartyChat extends JavaPlugin {
 
     public static final String MESSAGE_PREFIX = ChatColor.GREEN + "[Party] " + ChatColor.RESET;
 
-    public Logger logger = this.getLogger();
+    public final Logger logger = this.getLogger();
 
     public CommandParty commandParty;
     public CommandPartyChatMessage commandPartyChatMessage;

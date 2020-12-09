@@ -32,77 +32,79 @@ public class CommandParty implements TabExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof ConsoleCommandSender) {
-            sender.sendMessage(ChatColor.RED + "You must be a player for this command.");
+        if (args.length == 0 || sender instanceof ConsoleCommandSender) {
+            sender.sendMessage(ChatColor.GREEN + "PartyChat version " + partyChat.getDescription().getVersion() + ". Created by hyperdefined.");
             return true;
         }
+
         UUID commandSender = Bukkit.getPlayerExact(sender.getName()).getUniqueId();
-        if (args.length == 0) {
-            sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /party help for commands.");
-        } else if (args[0].equalsIgnoreCase("create")) {
-            if (args.length > 1) {
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /party create instead.");
-            } else {
+
+        switch (args[0]) {
+            case "help":
+                sender.sendMessage(ChatColor.GOLD + "--------------------------------------------");
+                sender.sendMessage(ChatColor.DARK_AQUA + "/party create - Make a new party.");
+                sender.sendMessage(ChatColor.DARK_AQUA + "/party invite <player> - Invite a player to the party. Party owner only.");
+                sender.sendMessage(ChatColor.DARK_AQUA + "/party accept/deny - Accept or deny an invite.");
+                sender.sendMessage(ChatColor.DARK_AQUA + "/party kick <player> - Kick a player from the party. Party owner only.");
+                sender.sendMessage(ChatColor.DARK_AQUA + "/party leave - Leave the party.");
+                sender.sendMessage(ChatColor.DARK_AQUA + "/party disband - Delete the party. Party owner only.");
+                sender.sendMessage(ChatColor.DARK_AQUA + "/party info - Information about the party.");
+                sender.sendMessage(ChatColor.DARK_AQUA + "/party transfer <player> - Transfer ownership of party. Party owner only.");
+                sender.sendMessage(ChatColor.DARK_AQUA + "/pc <message> - Send a message to the party.");
+                sender.sendMessage(ChatColor.GOLD + "--------------------------------------------");
+                break;
+            case "invite":
+                if (args.length == 1 || args.length > 2) {
+                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /party invite <player> instead.");
+                } else {
+                    if (partyManagement.lookupParty(commandSender) == null) {
+                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You are not in a party. Do /party create to make one.");
+                    } else if (partyManagement.isPlayerOwner(commandSender)) {
+                        if (Bukkit.getPlayerExact(args[1]) != null) {
+                            UUID inviteReceiver = Bukkit.getPlayerExact(args[1]).getUniqueId();
+                            if (PartyManagement.pendingInvites.containsKey(inviteReceiver)) {
+                                sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player already has a pending invite.");
+                            } else {
+                                if (partyManagement.lookupParty(inviteReceiver) != null) {
+                                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player is already in a party.");
+                                } else {
+                                    String partyID = partyManagement.lookupParty(commandSender);
+                                    partyManagement.invitePlayer(inviteReceiver, commandSender, partyID);
+                                }
+                            }
+                        } else {
+                            sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player was not found.");
+                        }
+                    } else {
+                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You cannot invite members to the party. Only the party owner can.");
+                    }
+                }
+                break;
+            case "create":
                 if (partyManagement.lookupParty(commandSender) == null) {
                     partyManagement.createParty(commandSender);
                     sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.DARK_AQUA + "Party has been created.");
                 } else {
                     sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You are already in a party.");
                 }
-            }
-        } else if (args[0].equalsIgnoreCase("invite")) {
-            if (args.length == 1 || args.length > 2) {
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /party invite <player> instead.");
-            } else {
-                if (partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You are not in a party. Do /party create to make one.");
-                } else if (partyManagement.isPlayerOwner(commandSender)) {
-                    if (Bukkit.getPlayerExact(args[1]) != null) {
-                        UUID inviteReceiver = Bukkit.getPlayerExact(args[1]).getUniqueId();
-                        if (PartyManagement.pendingInvites.containsKey(inviteReceiver)) {
-                            sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player already has a pending invite.");
-                        } else {
-                            if (partyManagement.lookupParty(inviteReceiver) != null) {
-                                sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player is already in a party.");
-                            } else {
-                                String partyID = partyManagement.lookupParty(commandSender);
-                                partyManagement.invitePlayer(inviteReceiver, commandSender, partyID);
-                            }
-                        }
-                    } else {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player was not found.");
-                    }
-                } else {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You cannot invite members to the party. Only the party owner can.");
-                }
-            }
-        } else if (args[0].equalsIgnoreCase("accept")) {
-            if (args.length > 1) {
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /party accept instead.");
-            } else {
+                break;
+            case "accept":
                 if (PartyManagement.pendingInvites.containsKey(commandSender)) {
                     String partyID = PartyManagement.pendingInvites.get(commandSender);
                     partyManagement.removeInvite(commandSender, partyID, true);
                 } else {
                     sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You do not have a pending invite right now.");
                 }
-            }
-        } else if (args[0].equalsIgnoreCase("deny")) {
-            if (args.length > 1) {
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /party deny instead.");
-            } else {
+                break;
+            case "deny":
                 if (PartyManagement.pendingInvites.containsKey(commandSender)) {
                     String partyID = PartyManagement.pendingInvites.get(commandSender);
                     partyManagement.removeInvite(commandSender, partyID, false);
                 } else {
                     sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You do not have a pending invite right now.");
                 }
-            }
-
-        } else if (args[0].equalsIgnoreCase("leave")) {
-            if (args.length > 1) {
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /party leave instead.");
-            } else {
+                break;
+            case "leave":
                 if (partyManagement.lookupParty(commandSender) == null) {
                     sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You are not in a party. Do /party create to make one.");
                 } else if (partyManagement.isPlayerOwner(commandSender)) {
@@ -111,11 +113,8 @@ public class CommandParty implements TabExecutor {
                     partyManagement.sendPartyMessage(PartyChat.MESSAGE_PREFIX + ChatColor.DARK_AQUA + sender.getName() + " has left the party.", partyManagement.lookupParty(commandSender));
                     partyManagement.removePlayerFromParty(commandSender, partyManagement.lookupParty(commandSender));
                 }
-            }
-        } else if (args[0].equalsIgnoreCase("disband")) {
-            if (args.length > 1) {
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /party disband instead.");
-            } else {
+                break;
+            case "disband":
                 if (partyManagement.lookupParty(commandSender) == null) {
                     sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You are not in a party. Do /party create to make one.");
                 } else if (partyManagement.isPlayerOwner(commandSender)) {
@@ -124,61 +123,60 @@ public class CommandParty implements TabExecutor {
                 } else {
                     sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You aren't the owner of a party. Do /party leave instead.");
                 }
-            }
-        } else if (args[0].equalsIgnoreCase("kick")) {
-            if (args.length == 1 || args.length > 2) {
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /party kick <player> instead.");
-            } else {
-                if (partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You are not in a party. Do /party create to make one.");
-                } else if (partyManagement.isPlayerOwner(commandSender)) {
-                    if (Bukkit.getPlayerExact(args[1]) != null) {
-                        UUID kickedPlayer = Bukkit.getPlayerExact(args[1]).getUniqueId();
-                        String partyPlayerKicked = partyManagement.lookupParty(kickedPlayer);
-                        String partyPlayerSender = partyManagement.lookupOwner(partyManagement.lookupParty(commandSender)).toString();
-                        if (partyPlayerSender.equals(partyPlayerKicked)) {
-                            sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player is not in your party.");
-                        } else if (!commandSender.equals(partyManagement.lookupOwner(partyPlayerSender))) {
-                            partyManagement.sendPartyMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + Bukkit.getPlayer(kickedPlayer).getName() + " has been kicked from the party.", partyManagement.lookupParty(kickedPlayer));
-                            partyManagement.removePlayerFromParty(kickedPlayer, partyManagement.lookupParty(kickedPlayer));
+                break;
+            case "kick":
+                if (args.length == 1 || args.length > 2) {
+                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /party kick <player> instead.");
+                } else {
+                    if (partyManagement.lookupParty(commandSender) == null) {
+                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You are not in a party. Do /party create to make one.");
+                    } else if (partyManagement.isPlayerOwner(commandSender)) {
+                        if (Bukkit.getPlayerExact(args[1]) != null) {
+                            UUID kickedPlayer = Bukkit.getPlayerExact(args[1]).getUniqueId();
+                            String partyPlayerKicked = partyManagement.lookupParty(kickedPlayer);
+                            String partyPlayerSender = partyManagement.lookupOwner(partyManagement.lookupParty(commandSender)).toString();
+                            if (partyPlayerSender.equals(partyPlayerKicked)) {
+                                sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player is not in your party.");
+                            } else if (!commandSender.equals(partyManagement.lookupOwner(partyPlayerSender))) {
+                                partyManagement.sendPartyMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + Bukkit.getPlayer(kickedPlayer).getName() + " has been kicked from the party.", partyManagement.lookupParty(kickedPlayer));
+                                partyManagement.removePlayerFromParty(kickedPlayer, partyManagement.lookupParty(kickedPlayer));
+                            } else {
+                                sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You cannot kick yourself from the party.");
+                            }
                         } else {
-                            sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You cannot kick yourself from the party.");
+                            sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player was not found.");
                         }
                     } else {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player was not found.");
+                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You cannot kick members from the party. Only the party owner can.");
                     }
-                } else {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You cannot kick members from the party. Only the party owner can.");
                 }
-            }
-        } else if (args[0].equalsIgnoreCase("transfer")) {
-            if (args.length == 1 || args.length > 2) {
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /party transfer <player> instead.");
-            } else {
-                if (partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You are not in a party. Do /party create to make one.");
-                } else if (partyManagement.isPlayerOwner(commandSender)) {
-                    if (Bukkit.getPlayerExact(args[1]) != null) {
-                        UUID newOwner = Bukkit.getPlayerExact(args[1]).getUniqueId();
-                        String partyPlayerKicked = partyManagement.lookupParty(newOwner);
-                        String partyPlayerSender = partyManagement.lookupOwner(partyManagement.lookupParty(commandSender)).toString();
-                        if (partyPlayerSender.equals(partyPlayerKicked)) {
-                            sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player is not in your party.");
+                break;
+            case "transfer":
+                if (args.length == 1 || args.length > 2) {
+                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /party transfer <player> instead.");
+                } else {
+                    if (partyManagement.lookupParty(commandSender) == null) {
+                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You are not in a party. Do /party create to make one.");
+                    } else if (partyManagement.isPlayerOwner(commandSender)) {
+                        if (Bukkit.getPlayerExact(args[1]) != null) {
+                            UUID newOwner = Bukkit.getPlayerExact(args[1]).getUniqueId();
+                            String partyPlayerKicked = partyManagement.lookupParty(newOwner);
+                            String partyPlayerSender = partyManagement.lookupOwner(partyManagement.lookupParty(commandSender)).toString();
+                            if (partyPlayerSender.equals(partyPlayerKicked)) {
+                                sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player is not in your party.");
+                            } else {
+                                partyManagement.sendPartyMessage(PartyChat.MESSAGE_PREFIX + ChatColor.DARK_AQUA + Bukkit.getPlayer(newOwner).getName() + " is now the owner of the party.", partyManagement.lookupParty(newOwner));
+                                partyManagement.updatePartyOwner(newOwner, partyManagement.lookupParty(newOwner));
+                            }
                         } else {
-                            partyManagement.sendPartyMessage(PartyChat.MESSAGE_PREFIX + ChatColor.DARK_AQUA + Bukkit.getPlayer(newOwner).getName() + " is now the owner of the party.", partyManagement.lookupParty(newOwner));
-                            partyManagement.updatePartyOwner(newOwner, partyManagement.lookupParty(newOwner));
+                            sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player was not found.");
                         }
                     } else {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player was not found.");
+                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You cannot transfer ownership. Only the party owner can.");
                     }
-                } else {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You cannot transfer ownership. Only the party owner can.");
                 }
-            }
-        } else if (args[0].equalsIgnoreCase("info")) {
-            if (args.length > 1) {
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.DARK_AQUA + "Invalid syntax. Do /party info instead.");
-            } else {
+                break;
+            case "info":
                 if (partyManagement.lookupParty(commandSender) == null) {
                     sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You are not in a party. Do /party create to make one.");
                 } else {
@@ -201,25 +199,7 @@ public class CommandParty implements TabExecutor {
                         Bukkit.getPlayer(commandSender).sendMessage(ChatColor.GOLD + "--------------------------------------------");
                     });
                 }
-            }
-        } else if (args[0].equalsIgnoreCase("help")) {
-            if (args.length > 1) {
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /party help instead.");
-            } else {
-                sender.sendMessage(ChatColor.GOLD + "--------------------------------------------");
-                sender.sendMessage(ChatColor.DARK_AQUA + "/party create - Make a new party.");
-                sender.sendMessage(ChatColor.DARK_AQUA + "/party invite <player> - Invite a player to the party. Party owner only.");
-                sender.sendMessage(ChatColor.DARK_AQUA + "/party accept/deny - Accept or deny an invite.");
-                sender.sendMessage(ChatColor.DARK_AQUA + "/party kick <player> - Kick a player from the party. Party owner only.");
-                sender.sendMessage(ChatColor.DARK_AQUA + "/party leave - Leave the party.");
-                sender.sendMessage(ChatColor.DARK_AQUA + "/party disband - Delete the party. Party owner only.");
-                sender.sendMessage(ChatColor.DARK_AQUA + "/party info - Information about the party.");
-                sender.sendMessage(ChatColor.DARK_AQUA + "/party transfer <player> - Transfer ownership of party. Party owner only.");
-                sender.sendMessage(ChatColor.DARK_AQUA + "/pc <message> - Send a message to the party.");
-                sender.sendMessage(ChatColor.GOLD + "--------------------------------------------");
-            }
-        } else {
-            sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid command. Do /party help instead.");
+                break;
         }
         return true;
     }
