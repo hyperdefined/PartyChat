@@ -34,6 +34,7 @@ public class CommandParty implements TabExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0 || sender instanceof ConsoleCommandSender) {
             sender.sendMessage(ChatColor.GREEN + "PartyChat version " + partyChat.getDescription().getVersion() + ". Created by hyperdefined.");
+            sender.sendMessage(ChatColor.GREEN + "Use /party help for command help.");
             return true;
         }
 
@@ -42,6 +43,7 @@ public class CommandParty implements TabExecutor {
         switch (args[0]) {
             case "help":
                 sender.sendMessage(ChatColor.GOLD + "--------------------------------------------");
+                sender.sendMessage(ChatColor.DARK_AQUA + "/party help - Shows this menu.");
                 sender.sendMessage(ChatColor.DARK_AQUA + "/party create - Make a new party.");
                 sender.sendMessage(ChatColor.DARK_AQUA + "/party invite <player> - Invite a player to the party. Party owner only.");
                 sender.sendMessage(ChatColor.DARK_AQUA + "/party accept/deny - Accept or deny an invite.");
