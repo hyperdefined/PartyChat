@@ -56,7 +56,6 @@ public class CommandPartyChatMessage implements CommandExecutor {
             } else {
                 sender.sendMessage(PartyChat.MESSAGE_PREFIX+ ChatColor.RED + "You are not in a party. Do /party create to make one.");
             }
-
         }
         return true;
     }
