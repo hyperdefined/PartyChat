@@ -1,13 +1,6 @@
 # PartyChat
-![Build with Maven](https://github.com/DESTROYMC-NET/PartyChat/workflows/Build%20with%20Maven/badge.svg)
+[![Downloads](https://img.shields.io/github/downloads/hyperdefined/PartyChat/total?logo=github)](https://github.com/hyperdefined/PartyChat/releases) [![Donate with Bitcoin](https://en.cryptobadges.io/badge/micro/1F29aNKQzci3ga5LDcHHawYzFPXvELTFoL)](https://en.cryptobadges.io/donate/1F29aNKQzci3ga5LDcHHawYzFPXvELTFoL) [![Donate with Ethereum](https://en.cryptobadges.io/badge/micro/0x0f58B66993a315dbCc102b4276298B5Ff8895F41)](https://en.cryptobadges.io/donate/0x0f58B66993a315dbCc102b4276298B5Ff8895F41) [![HitCount](http://hits.dwyl.com/hyperdefined/PartyChat.svg)](http://hits.dwyl.com/hyperdefined/PartyChat) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-A simple party chat plugin.
-## Features
-- Allows users to create parties.
-- Owners can invite, kick, transfer ownership, or disband the party.
-- A private chat that only party members can see. Use /pc (message) to chat.
-- Parties save after server restarts.
-- Players can only be in 1 party at a time.
+A simple party chat plugin. Talk privately with other players.
 
-## Download
-To download the latest build, head over to the [Actions](https://github.com/DESTROYMC-NET/PartyChat/actions) page and grab the latest build. It will download a zip file. Inside the zip file is the jar file.
+[Documentation and more info](https://hyper.lol/minecraft-plugins/partychat/).
