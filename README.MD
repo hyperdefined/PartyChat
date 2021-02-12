@@ -3,4 +3,5 @@
 
 A simple party chat plugin. Talk privately with other players.
 
-[Documentation and more info](https://hyper.lol/minecraft-plugins/partychat/).
+- [Documentation and more info](https://hyper.lol/minecraft-plugins/partychat/).
+- [SpigotMC Page](https://www.spigotmc.org/resources/partychat.88947/).
