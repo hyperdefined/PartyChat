@@ -18,6 +18,7 @@
 package lol.hyper.partychat;
 
 import lol.hyper.partychat.tools.PartyManagement;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -45,6 +46,8 @@ public final class PartyChat extends JavaPlugin {
         commandPartyChatMessage = new CommandPartyChatMessage(this, partyManagement);
         this.getCommand("party").setExecutor(commandParty);
         this.getCommand("pc").setExecutor(commandPartyChatMessage);
+
+        Metrics metrics = new Metrics(this, 10306);
 
         if (!partyFolder.toFile().exists()) {
             if (!partyFolder.toFile().mkdirs()) {
