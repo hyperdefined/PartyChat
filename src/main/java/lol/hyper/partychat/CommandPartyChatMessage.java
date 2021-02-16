@@ -32,11 +32,9 @@ import java.util.regex.Pattern;
 public class CommandPartyChatMessage implements CommandExecutor {
 
     private final PartyChat partyChat;
-    private final PartyManagement partyManagement;
 
-    public CommandPartyChatMessage(PartyChat partyChat, PartyManagement partyManagement) {
+    public CommandPartyChatMessage(PartyChat partyChat) {
         this.partyChat = partyChat;
-        this.partyManagement = partyManagement;
     }
 
     @Override
@@ -49,7 +47,7 @@ public class CommandPartyChatMessage implements CommandExecutor {
         if (args.length < 1) {
             sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /pc <message> instead.");
         } else {
-            if (partyManagement.lookupParty(player) != null) {
+            if (partyChat.partyManagement.lookupParty(player) != null) {
                 StringBuilder str = new StringBuilder();
                 for (String x : args) {
                     str.append(x).append(" ");
@@ -62,8 +60,8 @@ public class CommandPartyChatMessage implements CommandExecutor {
                 }
 
                 String playerMessage = PartyChat.MESSAGE_PREFIX + "<" + Bukkit.getPlayer(player).getName() + "> " + str.toString();
-                partyManagement.sendPartyMessage(playerMessage, partyManagement.lookupParty(player));
-                partyChat.logger.info("[" + partyManagement.lookupParty(player) + "] " + playerMessage);
+                partyChat.partyManagement.sendPartyMessage(playerMessage, partyChat.partyManagement.lookupParty(player));
+                partyChat.logger.info("[" + partyChat.partyManagement.lookupParty(player) + "] " + playerMessage);
             } else {
                 sender.sendMessage(PartyChat.MESSAGE_PREFIX+ ChatColor.RED + "You are not in a party. Do /party create to make one.");
             }

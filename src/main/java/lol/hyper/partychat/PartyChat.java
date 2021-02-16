@@ -42,8 +42,8 @@ public final class PartyChat extends JavaPlugin {
     @Override
     public void onEnable() {
         partyManagement = new PartyManagement(this);
-        commandParty = new CommandParty(this, partyManagement);
-        commandPartyChatMessage = new CommandPartyChatMessage(this, partyManagement);
+        commandParty = new CommandParty(this);
+        commandPartyChatMessage = new CommandPartyChatMessage(this);
         this.getCommand("party").setExecutor(commandParty);
         this.getCommand("pc").setExecutor(commandPartyChatMessage);
 

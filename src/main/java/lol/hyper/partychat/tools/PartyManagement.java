@@ -38,7 +38,7 @@ public class PartyManagement {
      * UUID is invite receiver
      * String is partyID
      */
-    public static final HashMap<UUID, String> pendingInvites = new HashMap<>();
+    public final HashMap<UUID, String> pendingInvites = new HashMap<>();
 
     private static FileWriter writer;
     private static FileReader reader;
