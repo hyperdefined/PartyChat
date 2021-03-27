@@ -258,7 +258,6 @@ public class PartyManagement {
      * @return returns the list of party members
      */
     public ArrayList < UUID > listPartyMembers(String partyID) {
-        JSONParser jsonParser = new JSONParser();
         File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
         JSONObject jsonObject = readFile(partyFile);
         ArrayList < UUID > partyArray = new ArrayList < > ();
