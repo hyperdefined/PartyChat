@@ -211,21 +211,21 @@ public class CommandParty implements TabExecutor {
                 } else {
                     Bukkit.getPlayer(commandSender).sendMessage(ChatColor.GOLD + "--------------------------------------------");
                     Bukkit.getPlayer(commandSender).sendMessage(ChatColor.DARK_AQUA + "Members: " + ChatColor.DARK_AQUA + partyChat.partyManagement.listPartyMembers(partyChat.partyManagement.lookupParty(commandSender)).size() + " - ID: " + partyChat.partyManagement.lookupParty(commandSender));
-                    ArrayList<UUID> players = partyChat.partyManagement.listPartyMembers(partyChat.partyManagement.lookupParty(commandSender));
-                    ArrayList<String> convertedPlayerNames = new ArrayList<>();
+                    ArrayList < UUID > players = partyChat.partyManagement.listPartyMembers(partyChat.partyManagement.lookupParty(commandSender));
+                    ArrayList < String > convertedPlayerNames = new ArrayList < > ();
                     UUID partyOwner = partyChat.partyManagement.lookupOwner(partyChat.partyManagement.lookupParty(commandSender));
                     Bukkit.getScheduler().runTaskAsynchronously(partyChat, () -> {
-                        for (UUID tempPlayer : players) {
-                            if (!tempPlayer.equals(partyOwner)) {
-                                convertedPlayerNames.add(UUIDLookup.getName(tempPlayer));
-                            } else {
-                                convertedPlayerNames.add(UUIDLookup.getName(tempPlayer) + " (Owner)");
-                            }
+                    for (UUID tempPlayer: players) {
+                        if (!tempPlayer.equals(partyOwner)) {
+                            convertedPlayerNames.add(UUIDLookup.getName(tempPlayer));
+                        } else {
+                            convertedPlayerNames.add(UUIDLookup.getName(tempPlayer) + " (Owner)");
                         }
-                        for (String tempPlayer : convertedPlayerNames) {
-                            Bukkit.getPlayer(commandSender).sendMessage(ChatColor.DARK_AQUA + tempPlayer);
-                        }
-                        Bukkit.getPlayer(commandSender).sendMessage(ChatColor.GOLD + "--------------------------------------------");
+                    }
+                    for (String tempPlayer: convertedPlayerNames) {
+                        Bukkit.getPlayer(commandSender).sendMessage(ChatColor.DARK_AQUA + tempPlayer);
+                    }
+                    Bukkit.getPlayer(commandSender).sendMessage(ChatColor.GOLD + "--------------------------------------------");
                     });
                 }
                 break;
@@ -234,7 +234,7 @@ public class CommandParty implements TabExecutor {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List < String > onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 0) {
             return Arrays.asList("create", "invite", "accept", "deny", "kick", "leave", "disband", "info", "transfer", "help");
         } else {

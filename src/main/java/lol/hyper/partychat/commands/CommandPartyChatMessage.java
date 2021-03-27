@@ -67,7 +67,7 @@ public class CommandPartyChatMessage implements CommandExecutor {
         } else {
             if (partyChat.partyManagement.lookupParty(player) != null) {
                 StringBuilder str = new StringBuilder();
-                for (String x : args) {
+                for (String x: args) {
                     str.append(x).append(" ");
                 }
 
@@ -81,7 +81,7 @@ public class CommandPartyChatMessage implements CommandExecutor {
                 partyChat.partyManagement.sendPartyMessage(playerMessage, partyChat.partyManagement.lookupParty(player));
                 partyChat.logger.info("[" + partyChat.partyManagement.lookupParty(player) + "] " + playerMessage);
             } else {
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX+ ChatColor.RED + "You are not in a party. Do /party create to make one.");
+                sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You are not in a party. Do /party create to make one.");
             }
         }
         return true;

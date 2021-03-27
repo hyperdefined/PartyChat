@@ -38,7 +38,7 @@ public class PartyManagement {
      * UUID is invite receiver
      * String is partyID
      */
-    public final HashMap<UUID, String> pendingInvites = new HashMap<>();
+    public final HashMap < UUID, String > pendingInvites = new HashMap < > ();
 
     private static FileWriter writer;
     private static FileReader reader;
@@ -78,7 +78,7 @@ public class PartyManagement {
             sendPartyMessage(PartyChat.MESSAGE_PREFIX + ChatColor.DARK_AQUA + Bukkit.getPlayer(pendingPlayer).getName() + " has joined the party!", partyID);
             partyChat.logger.info("Player " + pendingPlayer + " has accepted invite for party " + partyID);
         } else {
-            Bukkit.getPlayer(lookupOwner(partyID)).sendMessage(PartyChat.MESSAGE_PREFIX+ ChatColor.RED + Bukkit.getPlayer(pendingPlayer).getName() + " has denied the invite.");
+            Bukkit.getPlayer(lookupOwner(partyID)).sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + Bukkit.getPlayer(pendingPlayer).getName() + " has denied the invite.");
             Bukkit.getPlayer(pendingPlayer).sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You denied the party invite.");
             partyChat.logger.info("Player " + pendingPlayer + " has denied invite for party " + partyID);
         }
@@ -205,7 +205,7 @@ public class PartyManagement {
         File[] partyDirectory = partyChat.partyFolder.toFile().listFiles();
         if (partyDirectory != null) {
             JSONParser parser = new JSONParser();
-            for (File currentFile : partyDirectory) {
+            for (File currentFile: partyDirectory) {
                 Object obj;
                 try {
                     reader = new FileReader(currentFile);
@@ -280,7 +280,7 @@ public class PartyManagement {
             return;
         }
         JSONArray partyMembers = (JSONArray) jsonObject.get("members");
-        for (String partyMember : (Iterable<String>) partyMembers) {
+        for (String partyMember: (Iterable < String > ) partyMembers) {
             UUID uuid = UUID.fromString(partyMember);
             if (Bukkit.getPlayer(uuid) != null) {
                 Bukkit.getPlayer(uuid).sendMessage(message);
@@ -294,7 +294,7 @@ public class PartyManagement {
      * @param partyID Party ID to get list of members.
      * @return returns the list of party members
      */
-    public ArrayList<UUID> listPartyMembers(String partyID) {
+    public ArrayList < UUID > listPartyMembers(String partyID) {
         JSONParser jsonParser = new JSONParser();
         File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
         JSONObject jsonObject;
@@ -306,9 +306,9 @@ public class PartyManagement {
             e.printStackTrace();
             return null;
         }
-        ArrayList<UUID> partyArray = new ArrayList<>();
+        ArrayList < UUID > partyArray = new ArrayList < > ();
         JSONArray partyMembers = (JSONArray) jsonObject.get("members");
-        for (String partyMember : (Iterable<String>) partyMembers) {
+        for (String partyMember: (Iterable < String > ) partyMembers) {
             partyArray.add(UUID.fromString(partyMember));
         }
         return partyArray;
