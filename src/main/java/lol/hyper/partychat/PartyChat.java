@@ -17,6 +17,8 @@
 
 package lol.hyper.partychat;
 
+import lol.hyper.partychat.commands.CommandParty;
+import lol.hyper.partychat.commands.CommandPartyChatMessage;
 import lol.hyper.partychat.tools.PartyManagement;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.ChatColor;
