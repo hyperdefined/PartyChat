@@ -89,7 +89,7 @@ public class CommandParty implements TabExecutor {
                     if (partyChat.partyManagement.lookupParty(commandSender) == null) {
                         sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You are not in a party. Do /party create to make one.");
                     } else if (partyChat.partyManagement.isPlayerOwner(commandSender)) {
-                        if (Bukkit.getPlayerExact(args[1]) != null) {
+                        if (Bukkit.getPlayerExact(args[1]) != null && !partyChat.isVanished(args[1])) {
                             UUID inviteReceiver = Bukkit.getPlayerExact(args[1]).getUniqueId();
                             if (partyChat.partyManagement.pendingInvites.containsKey(inviteReceiver)) {
                                 sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player already has a pending invite.");
@@ -160,7 +160,7 @@ public class CommandParty implements TabExecutor {
                     if (partyChat.partyManagement.lookupParty(commandSender) == null) {
                         sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You are not in a party. Do /party create to make one.");
                     } else if (partyChat.partyManagement.isPlayerOwner(commandSender)) {
-                        if (Bukkit.getPlayerExact(args[1]) != null) {
+                        if (Bukkit.getPlayerExact(args[1]) != null && !partyChat.isVanished(args[1])) {
                             UUID kickedPlayer = Bukkit.getPlayerExact(args[1]).getUniqueId();
                             String partyPlayerKicked = partyChat.partyManagement.lookupParty(kickedPlayer);
                             String partyPlayerSender = partyChat.partyManagement.lookupOwner(partyChat.partyManagement.lookupParty(commandSender)).toString();
