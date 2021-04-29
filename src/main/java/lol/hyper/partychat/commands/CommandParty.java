@@ -35,7 +35,6 @@
 package lol.hyper.partychat.commands;
 
 import lol.hyper.partychat.PartyChat;
-import lol.hyper.partychat.tools.PartyManagement;
 import lol.hyper.partychat.tools.UUIDLookup;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

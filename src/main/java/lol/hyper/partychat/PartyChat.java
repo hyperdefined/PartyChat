@@ -73,7 +73,7 @@ public final class PartyChat extends JavaPlugin {
         } else {
             Player player2 = Bukkit.getPlayerExact(player);
             assert player2 != null;
-            for (MetadataValue meta : player2.getMetadata("vanished")) {
+            for (MetadataValue meta: player2.getMetadata("vanished")) {
                 if (meta.asBoolean()) return true;
             }
         }
