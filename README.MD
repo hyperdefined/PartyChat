@@ -14,3 +14,8 @@ Visit the [wiki](https://github.com/hyperdefined/PartyChat/wiki) for help.
 
 ## License
 This plugin is released under GNU General Public License v3. See [LICENSE](https://github.com/hyperdefined/PartyChat/blob/master/LICENSE).
+
+| Licenses |
+| ----------- |
+| [json-simple](https://www.apache.org/licenses/LICENSE-2.0.html) |
+| [commons-io](https://github.com/apache/commons-io/blob/master/LICENSE.txt) | 
