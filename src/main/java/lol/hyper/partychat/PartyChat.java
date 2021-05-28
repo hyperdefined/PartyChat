@@ -34,10 +34,8 @@ import java.util.logging.Logger;
 
 public final class PartyChat extends JavaPlugin {
 
-    public final Path partyFolder = Paths.get(this.getDataFolder() + File.separator + "parties");
-
     public static final String MESSAGE_PREFIX = ChatColor.GREEN + "[Party] " + ChatColor.RESET;
-
+    public final Path partyFolder = Paths.get(this.getDataFolder() + File.separator + "parties");
     public final Logger logger = this.getLogger();
 
     public CommandParty commandParty;
@@ -56,7 +54,8 @@ public final class PartyChat extends JavaPlugin {
 
         if (!partyFolder.toFile().exists()) {
             if (!partyFolder.toFile().mkdirs()) {
-                logger.severe("Unable to create the party folder " + partyFolder + "! Please manually create this folder because things will break!");
+                logger.severe("Unable to create the party folder " + partyFolder
+                        + "! Please manually create this folder because things will break!");
             } else {
                 logger.info("Creating parties folder for data storage.");
             }
@@ -73,7 +72,7 @@ public final class PartyChat extends JavaPlugin {
         } else {
             Player player2 = Bukkit.getPlayerExact(player);
             assert player2 != null;
-            for (MetadataValue meta: player2.getMetadata("vanished")) {
+            for (MetadataValue meta : player2.getMetadata("vanished")) {
                 if (meta.asBoolean()) return true;
             }
         }
