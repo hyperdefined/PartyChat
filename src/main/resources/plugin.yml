@@ -9,3 +9,4 @@ commands:
     description: The main party command.
   pc:
     description: Send private party messages.
+    aliases: [p]
