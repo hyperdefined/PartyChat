@@ -19,10 +19,8 @@ package lol.hyper.partychat.tools;
 
 import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.ParseException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
@@ -35,11 +33,10 @@ public class UUIDLookup {
         String url = "https://api.mojang.com/user/profiles/" + player.toString().replace("-", "") + "/names";
         try {
             String nameJson = IOUtils.toString(new URL(url), StandardCharsets.UTF_8);
-            JSONArray nameValue = (JSONArray) JSONValue.parseWithException(nameJson);
-            String playerSlot = nameValue.get(nameValue.size() - 1).toString();
-            JSONObject nameObject = (JSONObject) JSONValue.parseWithException(playerSlot);
+            JSONArray nameValue = new JSONArray(nameJson);
+            JSONObject nameObject = nameValue.getJSONObject(nameValue.length() - 1);
             return nameObject.get("name").toString();
-        } catch (IOException | ParseException e) {
+        } catch (IOException e) {
             Bukkit.getLogger().severe("Unable to lookup UUID for player " + player);
             e.printStackTrace();
         }
