@@ -21,6 +21,7 @@ import lol.hyper.partychat.PartyChat;
 import org.apache.commons.io.FilenameUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -96,13 +97,16 @@ public class PartyManagement {
      */
     public void invitePlayer(UUID receiver, UUID sender, String partyID) {
         pendingInvites.put(receiver, sender);
-        Bukkit.getPlayer(receiver)
-                .sendMessage(PartyChat.MESSAGE_PREFIX + "You have received a party invite from " + ChatColor.GOLD
-                        + Bukkit.getPlayer(sender).getName() + ".");
-        Bukkit.getPlayer(receiver)
-                .sendMessage(ChatColor.DARK_AQUA + "To join, type /party accept. To deny, type /party deny.");
-        Bukkit.getPlayer(sender).sendMessage(PartyChat.MESSAGE_PREFIX + "Invite sent!");
-        partyChat.logger.info(Bukkit.getPlayer(sender).getName() + " sent an invite to " + Bukkit.getPlayer(receiver).getName() + " for party " + partyID);
+        Player receiverPlayer = Bukkit.getPlayer(receiver);
+        Player senderPlayer = Bukkit.getPlayer(sender);
+        receiverPlayer.sendMessage(PartyChat.MESSAGE_PREFIX + "You have received a party invite from " + ChatColor.GOLD
+                + senderPlayer.getName() + ".");
+        receiverPlayer.sendMessage(
+                PartyChat.MESSAGE_PREFIX + "To join, type /party accept. To deny, type /party deny.");
+        senderPlayer.sendMessage(PartyChat.MESSAGE_PREFIX + "Invite sent!");
+        partyChat.logger.info(
+                senderPlayer.getName() + " sent an invite to " + receiverPlayer.getName() + " for party " + partyID);
+        sendPartyMessage(senderPlayer.getName() + " has sent an invite to " + receiverPlayer.getName() + ".", partyID);
     }
 
     /**
@@ -116,10 +120,11 @@ public class PartyManagement {
         String partyID = lookupParty(pendingInvites.get(pendingPlayer));
         if (answer) {
             addPlayerToParty(pendingPlayer, partyID);
-            sendPartyMessage(PartyChat.MESSAGE_PREFIX + player + " has joined the party!", partyID);
+            sendPartyMessage(player + " has joined the party!", partyID);
             partyChat.logger.info(player + " has accepted invite for party " + partyID);
         } else {
-            Bukkit.getPlayer(pendingInvites.get(pendingPlayer)).sendMessage(PartyChat.MESSAGE_PREFIX + player + " has denied the invite.");
+            Bukkit.getPlayer(pendingInvites.get(pendingPlayer))
+                    .sendMessage(PartyChat.MESSAGE_PREFIX + player + " has denied the invite.");
             Bukkit.getPlayer(pendingPlayer).sendMessage(PartyChat.MESSAGE_PREFIX + "You denied the party invite.");
             partyChat.logger.info(player + " has denied invite for party " + partyID);
         }

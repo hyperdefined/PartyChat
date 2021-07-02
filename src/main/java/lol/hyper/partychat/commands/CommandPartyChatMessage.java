@@ -57,12 +57,12 @@ public class CommandPartyChatMessage implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof ConsoleCommandSender) {
-            sender.sendMessage(ChatColor.RED + "You must be a player for this command.");
+            sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You must be a player for this command.");
             return true;
         }
         UUID player = Bukkit.getPlayerExact(sender.getName()).getUniqueId();
         if (args.length < 1) {
-            sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "Invalid syntax. Do /pc <message> instead.");
+            sender.sendMessage(PartyChat.MESSAGE_PREFIX + "Invalid syntax. Do /pc <message> instead.");
         } else {
             if (partyChat.partyManagement.lookupParty(player) != null) {
                 StringBuilder str = new StringBuilder();
@@ -76,14 +76,12 @@ public class CommandPartyChatMessage implements CommandExecutor {
                     str.insert(0, ChatColor.GREEN);
                 }
 
-                String playerMessage = PartyChat.MESSAGE_PREFIX + "<"
-                        + Bukkit.getPlayer(player).getName() + "> " + str.toString();
+                String playerMessage = "<" + Bukkit.getPlayer(player).getName() + "> " + str;
                 partyChat.partyManagement.sendPartyMessage(
                         playerMessage, partyChat.partyManagement.lookupParty(player));
                 partyChat.logger.info("[" + partyChat.partyManagement.lookupParty(player) + "] " + playerMessage);
             } else {
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED
-                        + "You are not in a party. Do /party create to make one.");
+                sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
             }
         }
         return true;

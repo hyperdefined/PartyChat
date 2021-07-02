@@ -60,7 +60,8 @@ public class CommandParty implements TabExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0 || sender instanceof ConsoleCommandSender) {
-            sender.sendMessage(PartyChat.MESSAGE_PREFIX + "PartyChat version " + partyChat.getDescription().getVersion() + ". Created by hyperdefined.");
+            sender.sendMessage(PartyChat.MESSAGE_PREFIX + "PartyChat version "
+                    + partyChat.getDescription().getVersion() + ". Created by hyperdefined.");
             sender.sendMessage(PartyChat.MESSAGE_PREFIX + "Use /party help for command help.");
             return true;
         }
@@ -91,7 +92,8 @@ public class CommandParty implements TabExecutor {
                     return true;
                 }
                 if (partyChat.partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+                    sender.sendMessage(
+                            PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
                     return true;
                 }
                 if (partyChat.partyManagement.isPlayerOwner(commandSender)
@@ -113,7 +115,8 @@ public class CommandParty implements TabExecutor {
                     partyChat.partyManagement.invitePlayer(playerToInvite.getUniqueId(), commandSender, partyID);
                     return true;
                 }
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You cannot invite members to the party. The owner or any trusted members can.");
+                sender.sendMessage(PartyChat.MESSAGE_PREFIX
+                        + "You cannot invite members to the party. The owner or any trusted members can.");
                 return true;
             }
             case "create": {
@@ -143,11 +146,14 @@ public class CommandParty implements TabExecutor {
             }
             case "leave": {
                 if (partyChat.partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+                    sender.sendMessage(
+                            PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
                     return true;
                 }
                 if (partyChat.partyManagement.isPlayerOwner(commandSender)) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You cannot leave as the owner. To delete the party, do /party disband. You can transfer the ownership with /party <transfer> <player>.");
+                    sender.sendMessage(
+                            PartyChat.MESSAGE_PREFIX
+                                    + "You cannot leave as the owner. To delete the party, do /party disband. You can transfer the ownership with /party <transfer> <player>.");
                     return true;
                 }
                 Player playerLeaving = (Player) sender;
@@ -158,11 +164,13 @@ public class CommandParty implements TabExecutor {
             }
             case "disband": {
                 if (partyChat.partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+                    sender.sendMessage(
+                            PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
                     return true;
                 }
                 if (!partyChat.partyManagement.isPlayerOwner(commandSender)) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You aren't the owner of a party. Do /party leave instead.");
+                    sender.sendMessage(
+                            PartyChat.MESSAGE_PREFIX + "You aren't the owner of a party. Do /party leave instead.");
                     return true;
                 }
                 Player playerLeaving = (Player) sender;
@@ -177,7 +185,8 @@ public class CommandParty implements TabExecutor {
                     return true;
                 }
                 if (partyChat.partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+                    sender.sendMessage(
+                            PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
                     return true;
                 }
                 if (partyChat.partyManagement.isPlayerOwner(commandSender)
@@ -193,24 +202,32 @@ public class CommandParty implements TabExecutor {
                         sender.sendMessage(PartyChat.MESSAGE_PREFIX + "That player is not in your party.");
                         return true;
                     }
+                    if (partyChat.partyManagement.isPlayerOwner(playerToKick.getUniqueId())) {
+                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You cannot kick the owner of the party.");
+                        return true;
+                    }
                     if (commandSender.equals(playerToKick.getUniqueId())) {
                         sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You cannot kick yourself from the party.");
                         return true;
                     }
-                    partyChat.partyManagement.sendPartyMessage(playerToKick.getName() + " has been kicked from the party.", partyID);
+                    partyChat.partyManagement.sendPartyMessage(
+                            playerToKick.getName() + " has been kicked from the party.", partyID);
                     partyChat.partyManagement.removePlayerFromParty(playerToKick.getUniqueId(), partyID);
                     return true;
                 }
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You cannot kick members from the party. The owner or any trusted members can.");
+                sender.sendMessage(PartyChat.MESSAGE_PREFIX
+                        + "You cannot kick members from the party. The owner or any trusted members can.");
                 return true;
             }
             case "transfer": {
                 if (args.length == 1 || args.length > 2) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "Invalid syntax. Do /party transfer <player> instead.");
+                    sender.sendMessage(
+                            PartyChat.MESSAGE_PREFIX + "Invalid syntax. Do /party transfer <player> instead.");
                     return true;
                 }
                 if (partyChat.partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+                    sender.sendMessage(
+                            PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
                     return true;
                 }
                 if (partyChat.partyManagement.isPlayerOwner(commandSender)) {
@@ -220,16 +237,19 @@ public class CommandParty implements TabExecutor {
                     }
                     Player newOwner = Bukkit.getPlayerExact(args[1]);
                     String partyID = partyChat.partyManagement.lookupParty(commandSender);
-                    partyChat.partyManagement.sendPartyMessage(newOwner.getName() + " is now the owner of the party.", partyID);
+                    partyChat.partyManagement.sendPartyMessage(
+                            newOwner.getName() + " is now the owner of the party.", partyID);
                     partyChat.partyManagement.updatePartyOwner(newOwner.getUniqueId(), partyID);
                     return true;
                 }
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You cannot transfer ownership. Only the party owner can.");
+                sender.sendMessage(
+                        PartyChat.MESSAGE_PREFIX + "You cannot transfer ownership. Only the party owner can.");
                 return true;
             }
             case "info": {
                 if (partyChat.partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+                    sender.sendMessage(
+                            PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
                     return true;
                 }
                 Bukkit.getPlayer(commandSender)
@@ -266,11 +286,12 @@ public class CommandParty implements TabExecutor {
             }
             case "trust": {
                 if (args.length == 1 || args.length > 2) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "Invalid syntax. Do /party transfer <player> instead.");
+                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "Invalid syntax. Do /party trust <player> instead.");
                     return true;
                 }
                 if (partyChat.partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+                    sender.sendMessage(
+                            PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
                     return true;
                 }
                 if (partyChat.partyManagement.isPlayerOwner(commandSender)) {
@@ -286,7 +307,8 @@ public class CommandParty implements TabExecutor {
                         return true;
                     }
                     if (commandSender.equals(memberToTrust.getUniqueId())) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You cannot add yourself as a trusted member, you are the party owner.");
+                        sender.sendMessage(PartyChat.MESSAGE_PREFIX
+                                + "You cannot add yourself as a trusted member, you are the party owner.");
                         return true;
                     }
                     if (partyChat.partyManagement.checkTrusted(memberToTrust.getUniqueId())) {
@@ -294,19 +316,21 @@ public class CommandParty implements TabExecutor {
                         return true;
                     }
                     partyChat.partyManagement.trustPlayer(memberToTrust.getUniqueId());
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "That player was added as a trusted member.");
                     return true;
                 }
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You are not the owner of the party, Only the owner can trust members.");
+                sender.sendMessage(PartyChat.MESSAGE_PREFIX
+                        + "You are not the owner of the party, Only the owner can trust members.");
                 return true;
             }
             case "untrust": {
                 if (args.length == 1 || args.length > 2) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "Invalid syntax. Do /party transfer <player> instead.");
+                    sender.sendMessage(
+                            PartyChat.MESSAGE_PREFIX + "Invalid syntax. Do /party untrust <player> instead.");
                     return true;
                 }
                 if (partyChat.partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+                    sender.sendMessage(
+                            PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
                     return true;
                 }
                 if (partyChat.partyManagement.isPlayerOwner(commandSender)) {
@@ -322,7 +346,8 @@ public class CommandParty implements TabExecutor {
                         return true;
                     }
                     if (commandSender.equals(memberToTrust.getUniqueId())) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You cannot remove yourself as a trusted player, you are the party owner.");
+                        sender.sendMessage(PartyChat.MESSAGE_PREFIX
+                                + "You cannot remove yourself as a trusted player, you are the party owner.");
                         return true;
                     }
                     if (!partyChat.partyManagement.checkTrusted(memberToTrust.getUniqueId())) {
@@ -330,10 +355,10 @@ public class CommandParty implements TabExecutor {
                         return true;
                     }
                     partyChat.partyManagement.removeTrustedPlayer(memberToTrust.getUniqueId());
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "That player was removed as a trusted member.");
                     return true;
                 }
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You are not the owner of the party, Only the owner can trust members.");
+                sender.sendMessage(PartyChat.MESSAGE_PREFIX
+                        + "You are not the owner of the party, Only the owner can remove trusted members.");
                 return true;
             }
         }
