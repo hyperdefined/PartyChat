@@ -64,6 +64,8 @@ public class PartyManagement {
             object = new JSONObject(sb.toString());
             br.close();
         } catch (Exception e) {
+            partyChat.logger.severe("Unable to read file " + file.getAbsolutePath());
+            partyChat.logger.severe("This is bad, really bad.");
             e.printStackTrace();
         }
         return object;
