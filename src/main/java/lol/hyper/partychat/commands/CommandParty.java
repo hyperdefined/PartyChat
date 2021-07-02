@@ -276,10 +276,12 @@ public class CommandParty implements TabExecutor {
                             partyChat.partyManagement.lookupOwner(partyChat.partyManagement.lookupParty(commandSender));
                     Bukkit.getScheduler().runTaskAsynchronously(partyChat, () -> {
                         for (UUID tempPlayer : players) {
-                            if (!tempPlayer.equals(partyOwner)) {
-                                convertedPlayerNames.add(UUIDLookup.getName(tempPlayer));
-                            } else {
+                            if (tempPlayer.equals(partyOwner)) {
                                 convertedPlayerNames.add(UUIDLookup.getName(tempPlayer) + " (Owner)");
+                            } else if (partyChat.partyManagement.checkTrusted(tempPlayer)) {
+                                convertedPlayerNames.add(UUIDLookup.getName(tempPlayer) + " (Trusted)");
+                            } else {
+                                convertedPlayerNames.add(UUIDLookup.getName(tempPlayer));
                             }
                         }
                         for (String tempPlayer : convertedPlayerNames) {
