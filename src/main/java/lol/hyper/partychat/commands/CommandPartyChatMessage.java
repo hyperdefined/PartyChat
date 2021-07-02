@@ -70,7 +70,7 @@ public class CommandPartyChatMessage implements CommandExecutor {
             sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
         }
 
-        String playerMessage = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+        String playerMessage = String.join(" ", args);
         Pattern greenTextPattern = Pattern.compile("^>(\\S*).*");
         Matcher greenTextMatcher = greenTextPattern.matcher(playerMessage);
         if (greenTextMatcher.find()) {
