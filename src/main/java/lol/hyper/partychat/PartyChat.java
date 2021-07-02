@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 
 public final class PartyChat extends JavaPlugin {
 
-    public static final String MESSAGE_PREFIX = ChatColor.GREEN + "[Party] " + ChatColor.RESET;
+    public static final String MESSAGE_PREFIX = ChatColor.GREEN + "[Party] " + ChatColor.DARK_AQUA;
     public final Path partyFolder = Paths.get(this.getDataFolder() + File.separator + "parties");
     public final Logger logger = this.getLogger();
 

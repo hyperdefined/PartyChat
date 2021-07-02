@@ -265,7 +265,7 @@ public class PartyManagement {
         for (Object partyMember : partyMembers) {
             UUID uuid = UUID.fromString((String) partyMember);
             if (Bukkit.getPlayer(uuid) != null) {
-                Bukkit.getPlayer(uuid).sendMessage(message);
+                Bukkit.getPlayer(uuid).sendMessage(PartyChat.MESSAGE_PREFIX + message);
             }
         }
     }
@@ -327,6 +327,7 @@ public class PartyManagement {
         trusted.put(player.toString());
         jsonObject.put("trusted", trusted);
         writeFile(partyFile, jsonObject);
+        sendPartyMessage(Bukkit.getPlayer(player).getName() + " has become a trusted member.", partyID);
     }
 
     /**
@@ -368,5 +369,6 @@ public class PartyManagement {
         }
         jsonObject.put("trusted", trusted);
         writeFile(partyFile, jsonObject);
+        sendPartyMessage(Bukkit.getPlayer(player).getName() + " has been removed as a trusted member.", partyID);
     }
 }
