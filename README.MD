@@ -17,5 +17,5 @@ This plugin is released under GNU General Public License v3. See [LICENSE](https
 
 | Licenses |
 | ----------- |
-| [json-simple](https://www.apache.org/licenses/LICENSE-2.0.html) |
+| [org.json](https://github.com/stleary/JSON-java/blob/master/LICENSE) |
 | [commons-io](https://github.com/apache/commons-io/blob/master/LICENSE.txt) | 
