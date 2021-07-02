@@ -83,6 +83,8 @@ public class CommandParty implements TabExecutor {
                 sender.sendMessage(ChatColor.DARK_AQUA + "/party info - Information about the party.");
                 sender.sendMessage(ChatColor.DARK_AQUA
                         + "/party transfer <player> - Transfer ownership of party. Party owner only.");
+                sender.sendMessage(ChatColor.DARK_AQUA + "/party trust <player> - Trust a player in the party. They can invite and kick.");
+                sender.sendMessage(ChatColor.DARK_AQUA + "/party untrust <player> - Remove a trusted player.");
                 sender.sendMessage(ChatColor.DARK_AQUA + "/pc <message> - Send a message to the party.");
                 sender.sendMessage(ChatColor.GOLD + "--------------------------------------------");
                 break;
@@ -211,7 +213,7 @@ public class CommandParty implements TabExecutor {
                         return true;
                     }
                     partyChat.partyManagement.sendPartyMessage(
-                            playerToKick.getName() + " has been kicked from the party.", partyID);
+                            playerToKick.getName() + " has been kicked from the party by " + Bukkit.getPlayer(commandSender).getName() + ".", partyID);
                     partyChat.partyManagement.removePlayerFromParty(playerToKick.getUniqueId(), partyID);
                     return true;
                 }
@@ -359,6 +361,10 @@ public class CommandParty implements TabExecutor {
                 }
                 sender.sendMessage(PartyChat.MESSAGE_PREFIX
                         + "You are not the owner of the party, Only the owner can remove trusted members.");
+                return true;
+            }
+            default: {
+                sender.sendMessage(PartyChat.MESSAGE_PREFIX + "Invalid option. See /party help for all options.");
                 return true;
             }
         }
