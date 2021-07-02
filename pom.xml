@@ -59,8 +59,8 @@
                         <configuration>
                             <relocations>
                                 <relocation>
-                                    <pattern>org.json.simple</pattern>
-                                    <shadedPattern>lol.hyper.partychat.jsonsimple</shadedPattern>
+                                    <pattern>org.json</pattern>
+                                    <shadedPattern>lol.hyper.partychat.json</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.commons.io</pattern>

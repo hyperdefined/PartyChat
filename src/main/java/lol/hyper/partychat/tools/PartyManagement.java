@@ -188,6 +188,21 @@ public class PartyManagement {
                 partyMembers.remove(i);
             }
         }
+        if (jsonObject.has("trusted")) {
+            JSONArray trusted = jsonObject.getJSONArray("trusted");
+            boolean didWeRemove = false;
+            for (int i = 0; i < trusted.length(); i++) {
+                String player = trusted.getString(i);
+                if (oldPlayer.toString().equalsIgnoreCase(player)) {
+                    trusted.remove(i);
+                    didWeRemove = true;
+                    break;
+                }
+            }
+            if (didWeRemove) {
+                jsonObject.put("trusted", trusted);
+            }
+        }
         jsonObject.put("members", partyMembers);
         writeFile(partyFile, jsonObject);
     }
@@ -290,5 +305,66 @@ public class PartyManagement {
 
         File partyFile = new File(partyChat.partyFolder.toFile(), random + ".json");
         writeFile(partyFile, partyObject);
+    }
+
+    /**
+     * Trust player in a party.
+     * @param player Player to trust.
+     */
+    public void trustPlayer(UUID player) {
+        String partyID = lookupParty(player);
+        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
+        JSONObject jsonObject = readFile(partyFile);
+        // throws exception if this doesn't exist, so we have to check it since this trusted feature is new
+        JSONArray trusted;
+        if (jsonObject.has("trusted")) {
+            trusted = new JSONArray(jsonObject.getJSONArray("trusted"));
+        } else {
+            trusted = new JSONArray();
+        }
+        trusted.put(player.toString());
+        jsonObject.put("trusted", trusted);
+        writeFile(partyFile, jsonObject);
+    }
+
+    /**
+     * Check if a player is trusted.
+     * @param player Player to check.
+     * @return True if the player is trusted, false if not.
+     */
+    public boolean checkTrusted(UUID player) {
+        String partyID = lookupParty(player);
+        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
+        JSONObject jsonObject = readFile(partyFile);
+        // throws exception if this doesn't exist, so we have to check it since this trusted feature is new
+        if (jsonObject.has("trusted")) {
+            JSONArray trusted = new JSONArray(jsonObject.getJSONArray("trusted"));
+            for (int i = 0; i < trusted.length(); i++) {
+                if (trusted.getString(i).equalsIgnoreCase(player.toString())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Remove a player's trust rank.
+     * @param player Player to remove.
+     */
+    public void removeTrustedPlayer(UUID player) {
+        String partyID = lookupParty(player);
+        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
+        JSONObject jsonObject = readFile(partyFile);
+        // throws exception if this doesn't exist, so we have to check it since this trusted feature is new
+        JSONArray trusted = new JSONArray(jsonObject.getJSONArray("trusted"));
+        for (int i = 0; i < trusted.length(); i++) {
+            if (trusted.getString(i).equalsIgnoreCase(player.toString())) {
+                trusted.remove(i);
+                break;
+            }
+        }
+        jsonObject.put("trusted", trusted);
+        writeFile(partyFile, jsonObject);
     }
 }

@@ -67,6 +67,8 @@ public class CommandParty implements TabExecutor {
 
         UUID commandSender = Bukkit.getPlayerExact(sender.getName()).getUniqueId();
 
+        String partyIDSender;
+
         switch (args[0]) {
             case "help":
                 sender.sendMessage(ChatColor.GOLD + "--------------------------------------------");
@@ -93,7 +95,8 @@ public class CommandParty implements TabExecutor {
                     if (partyChat.partyManagement.lookupParty(commandSender) == null) {
                         sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED
                                 + "You are not in a party. Do /party create to make one.");
-                    } else if (partyChat.partyManagement.isPlayerOwner(commandSender)) {
+                    } else if (partyChat.partyManagement.isPlayerOwner(commandSender)
+                            && partyChat.partyManagement.checkTrusted(commandSender)) {
                         if (Bukkit.getPlayerExact(args[1]) != null && !partyChat.isVanished(args[1])) {
                             UUID inviteReceiver = Bukkit.getPlayerExact(args[1]).getUniqueId();
                             if (partyChat.partyManagement.pendingInvites.containsKey(inviteReceiver)) {
@@ -113,7 +116,7 @@ public class CommandParty implements TabExecutor {
                         }
                     } else {
                         sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED
-                                + "You cannot invite members to the party. Only the party owner can.");
+                                + "You cannot invite members to the party. The owner or any trusted members can.");
                     }
                 }
                 break;
@@ -181,7 +184,8 @@ public class CommandParty implements TabExecutor {
                     if (partyChat.partyManagement.lookupParty(commandSender) == null) {
                         sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED
                                 + "You are not in a party. Do /party create to make one.");
-                    } else if (partyChat.partyManagement.isPlayerOwner(commandSender)) {
+                    } else if (partyChat.partyManagement.isPlayerOwner(commandSender)
+                            && partyChat.partyManagement.checkTrusted(commandSender)) {
                         if (Bukkit.getPlayerExact(args[1]) != null && !partyChat.isVanished(args[1])) {
                             UUID kickedPlayer = Bukkit.getPlayerExact(args[1]).getUniqueId();
                             String partyPlayerKicked = partyChat.partyManagement.lookupParty(kickedPlayer);
@@ -210,7 +214,7 @@ public class CommandParty implements TabExecutor {
                         }
                     } else {
                         sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED
-                                + "You cannot kick members from the party. Only the party owner can.");
+                                + "You cannot kick members from the party. The owner or any trusted members can.");
                     }
                 }
                 break;
@@ -284,6 +288,76 @@ public class CommandParty implements TabExecutor {
                         Bukkit.getPlayer(commandSender)
                                 .sendMessage(ChatColor.GOLD + "--------------------------------------------");
                     });
+                }
+                break;
+            case "trust":
+                if (args.length == 1 || args.length > 2) {
+                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED
+                            + "Invalid syntax. Do /party trust <player> instead.");
+                } else {
+                    if (partyChat.partyManagement.lookupParty(commandSender) == null) {
+                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED
+                                + "You are not in a party. Do /party create to make one.");
+                    } else if (partyChat.partyManagement.isPlayerOwner(commandSender)) {
+                        partyIDSender = partyChat.partyManagement.lookupParty(commandSender);
+                        if (Bukkit.getPlayerExact(args[1]) != null) {
+                            UUID trust = Bukkit.getPlayerExact(args[1]).getUniqueId();
+                            String partyOfTrust = partyChat.partyManagement.lookupParty(trust);
+                            if (partyIDSender.equalsIgnoreCase(partyOfTrust)) {
+                                if (partyChat.partyManagement.checkTrusted(trust)) {
+                                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED
+                                            + "That player is already trusted.");
+                                } else {
+                                    partyChat.partyManagement.trustPlayer(trust);
+                                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.GREEN
+                                            + "That player was added as a trusted member.");
+                                }
+                            } else {
+                                sender.sendMessage(
+                                        PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player is not in your party.");
+                            }
+                        } else {
+                            sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player was not found.");
+                        }
+                    } else {
+                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED
+                                + "You cannot remove a trusted player. Only the party owner can.");
+                    }
+                }
+                break;
+            case "untrust":
+                if (args.length == 1 || args.length > 2) {
+                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED
+                            + "Invalid syntax. Do /party untrust <player> instead.");
+                } else {
+                    if (partyChat.partyManagement.lookupParty(commandSender) == null) {
+                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED
+                                + "You are not in a party. Do /party create to make one.");
+                    } else if (partyChat.partyManagement.isPlayerOwner(commandSender)) {
+                        partyIDSender = partyChat.partyManagement.lookupParty(commandSender);
+                        if (Bukkit.getPlayerExact(args[1]) != null) {
+                            UUID trust = Bukkit.getPlayerExact(args[1]).getUniqueId();
+                            String partyOfTrust = partyChat.partyManagement.lookupParty(trust);
+                            if (partyIDSender.equalsIgnoreCase(partyOfTrust)) {
+                                if (!partyChat.partyManagement.checkTrusted(trust)) {
+                                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED
+                                            + "That player is already not trusted.");
+                                } else {
+                                    partyChat.partyManagement.removeTrustedPlayer(trust);
+                                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.GREEN
+                                            + "That player was removed as a trusted member.");
+                                }
+                            } else {
+                                sender.sendMessage(
+                                        PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player is not in your party.");
+                            }
+                        } else {
+                            sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player was not found.");
+                        }
+                    } else {
+                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED
+                                + "You cannot remove a trusted player. Only the party owner can.");
+                    }
                 }
                 break;
         }
