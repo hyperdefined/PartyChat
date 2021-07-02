@@ -33,12 +33,11 @@ import java.util.UUID;
 public class PartyManagement {
 
     private static FileWriter writer;
-    private static FileReader reader;
     /**
-     * UUID is invite receiver
-     * String is partyID
+     * invite receiver
+     * invite sender
      */
-    public final HashMap<UUID, String> pendingInvites = new HashMap<>();
+    public final HashMap<UUID, UUID> pendingInvites = new HashMap<>();
 
     private final PartyChat partyChat;
 
@@ -96,7 +95,7 @@ public class PartyManagement {
      * @param partyID  Party ID of the person inviting.
      */
     public void invitePlayer(UUID receiver, UUID sender, String partyID) {
-        pendingInvites.put(receiver, partyID);
+        pendingInvites.put(receiver, sender);
         Bukkit.getPlayer(receiver)
                 .sendMessage(PartyChat.MESSAGE_PREFIX + "You have received a party invite from " + ChatColor.GOLD
                         + Bukkit.getPlayer(sender).getName() + ".");
@@ -110,21 +109,21 @@ public class PartyManagement {
      * Remove player from pending invites list.
      *
      * @param pendingPlayer UUID of person to remove invite from.
-     * @param partyID Party ID of person who is being invited.
      * @param answer Player's response to being invited.
      */
-    public void removeInvite(UUID pendingPlayer, UUID sender, String partyID, boolean answer) {
-        pendingInvites.remove(pendingPlayer);
+    public void removeInvite(UUID pendingPlayer, boolean answer) {
         String player = Bukkit.getPlayer(pendingPlayer).getName();
+        String partyID = lookupParty(pendingInvites.get(pendingPlayer));
         if (answer) {
             addPlayerToParty(pendingPlayer, partyID);
             sendPartyMessage(PartyChat.MESSAGE_PREFIX + player + " has joined the party!", partyID);
             partyChat.logger.info(player + " has accepted invite for party " + partyID);
         } else {
-            Bukkit.getPlayer(sender).sendMessage(PartyChat.MESSAGE_PREFIX + player + " has denied the invite.");
+            Bukkit.getPlayer(pendingInvites.get(pendingPlayer)).sendMessage(PartyChat.MESSAGE_PREFIX + player + " has denied the invite.");
             Bukkit.getPlayer(pendingPlayer).sendMessage(PartyChat.MESSAGE_PREFIX + "You denied the party invite.");
             partyChat.logger.info(player + " has denied invite for party " + partyID);
         }
+        pendingInvites.remove(pendingPlayer);
     }
 
     /**

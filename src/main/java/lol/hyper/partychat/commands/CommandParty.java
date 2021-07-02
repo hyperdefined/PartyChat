@@ -127,8 +127,7 @@ public class CommandParty implements TabExecutor {
             }
             case "accept": {
                 if (partyChat.partyManagement.pendingInvites.containsKey(commandSender)) {
-                    String partyID = partyChat.partyManagement.pendingInvites.get(commandSender);
-                    partyChat.partyManagement.removeInvite(commandSender, partyID, true);
+                    partyChat.partyManagement.removeInvite(commandSender, true);
                 } else {
                     sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You do not have a pending invite right now.");
                 }
@@ -136,8 +135,7 @@ public class CommandParty implements TabExecutor {
             }
             case "deny": {
                 if (partyChat.partyManagement.pendingInvites.containsKey(commandSender)) {
-                    String partyID = partyChat.partyManagement.pendingInvites.get(commandSender);
-                    partyChat.partyManagement.removeInvite(commandSender, partyID, false);
+                    partyChat.partyManagement.removeInvite(commandSender, false);
                 } else {
                     sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You do not have a pending invite right now.");
                 }
