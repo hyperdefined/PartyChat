@@ -207,10 +207,6 @@ public class CommandParty implements TabExecutor {
                         sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player was not found.");
                         return true;
                     }
-                    if (Bukkit.getPlayerExact(args[1]) == null) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player was not found.");
-                        return true;
-                    }
                     Player playerToKick = Bukkit.getPlayerExact(args[1]);
                     String partyIDKickingPlayer = partyChat.partyManagement.lookupParty(playerToKick.getUniqueId());
                     String partyID = partyChat.partyManagement.lookupParty(commandSender);
@@ -313,6 +309,13 @@ public class CommandParty implements TabExecutor {
                         return true;
                     }
                     Player memberToTrust = Bukkit.getPlayerExact(args[1]);
+                    String partyID = partyChat.partyManagement.lookupParty(commandSender);
+                    String partyIDTrusted = partyChat.partyManagement.lookupParty(memberToTrust.getUniqueId());
+                    if (!partyID.equals(partyIDTrusted)) {
+                        sender.sendMessage(
+                                PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player is not in your party.");
+                        return true;
+                    }
                     if (commandSender.equals(memberToTrust.getUniqueId())) {
                         sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED
                                 + "You cannot add yourself as a trusted member, you are the party owner.");
@@ -349,6 +352,13 @@ public class CommandParty implements TabExecutor {
                         return true;
                     }
                     Player memberToTrust = Bukkit.getPlayerExact(args[1]);
+                    String partyID = partyChat.partyManagement.lookupParty(commandSender);
+                    String partyIDTrusted = partyChat.partyManagement.lookupParty(memberToTrust.getUniqueId());
+                    if (!partyID.equals(partyIDTrusted)) {
+                        sender.sendMessage(
+                                PartyChat.MESSAGE_PREFIX + ChatColor.RED + "That player is not in your party.");
+                        return true;
+                    }
                     if (commandSender.equals(memberToTrust.getUniqueId())) {
                         sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED
                                 + "You cannot remove yourself as a trusted player, you are the party owner.");
