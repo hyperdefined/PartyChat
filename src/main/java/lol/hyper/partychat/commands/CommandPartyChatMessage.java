@@ -42,6 +42,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,27 +64,22 @@ public class CommandPartyChatMessage implements CommandExecutor {
         UUID player = Bukkit.getPlayerExact(sender.getName()).getUniqueId();
         if (args.length < 1) {
             sender.sendMessage(PartyChat.MESSAGE_PREFIX + "Invalid syntax. Do /pc <message> instead.");
-        } else {
-            if (partyChat.partyManagement.lookupParty(player) != null) {
-                StringBuilder str = new StringBuilder();
-                for (String x : args) {
-                    str.append(x).append(" ");
-                }
-
-                Pattern greenTextPattern = Pattern.compile("^>(\\S*).*");
-                Matcher greenTextMatcher = greenTextPattern.matcher(str.toString());
-                if (greenTextMatcher.find()) {
-                    str.insert(0, ChatColor.GREEN);
-                }
-
-                String playerMessage = "<" + Bukkit.getPlayer(player).getName() + "> " + str;
-                partyChat.partyManagement.sendPartyMessage(
-                        playerMessage, partyChat.partyManagement.lookupParty(player));
-                partyChat.logger.info("[" + partyChat.partyManagement.lookupParty(player) + "] " + playerMessage);
-            } else {
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
-            }
+            return true;
         }
+        if (partyChat.partyManagement.lookupParty(player) == null) {
+            sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+        }
+
+        String playerMessage = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+        Pattern greenTextPattern = Pattern.compile("^>(\\S*).*");
+        Matcher greenTextMatcher = greenTextPattern.matcher(playerMessage);
+        if (greenTextMatcher.find()) {
+            playerMessage = ChatColor.GREEN + playerMessage;
+        }
+
+        String finaMlessage = "<" + Bukkit.getPlayer(player).getName() + "> " + playerMessage;
+        partyChat.partyManagement.sendPartyMessage(finaMlessage, partyChat.partyManagement.lookupParty(player));
+        partyChat.logger.info("[" + partyChat.partyManagement.lookupParty(player) + "] " + finaMlessage);
         return true;
     }
 }
