@@ -98,12 +98,12 @@ public class PartyManagement {
     public void invitePlayer(UUID receiver, UUID sender, String partyID) {
         pendingInvites.put(receiver, partyID);
         Bukkit.getPlayer(receiver)
-                .sendMessage(ChatColor.DARK_AQUA + "You have received a party invite from " + ChatColor.GOLD
+                .sendMessage(PartyChat.MESSAGE_PREFIX + "You have received a party invite from " + ChatColor.GOLD
                         + Bukkit.getPlayer(sender).getName() + ".");
         Bukkit.getPlayer(receiver)
                 .sendMessage(ChatColor.DARK_AQUA + "To join, type /party accept. To deny, type /party deny.");
-        Bukkit.getPlayer(sender).sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.DARK_AQUA + "Invite sent!");
-        partyChat.logger.info(sender + " sent an invite to " + receiver + " for party " + partyID);
+        Bukkit.getPlayer(sender).sendMessage(PartyChat.MESSAGE_PREFIX + "Invite sent!");
+        partyChat.logger.info(Bukkit.getPlayer(sender).getName() + " sent an invite to " + Bukkit.getPlayer(receiver).getName() + " for party " + partyID);
     }
 
     /**
@@ -113,22 +113,17 @@ public class PartyManagement {
      * @param partyID Party ID of person who is being invited.
      * @param answer Player's response to being invited.
      */
-    public void removeInvite(UUID pendingPlayer, String partyID, boolean answer) {
+    public void removeInvite(UUID pendingPlayer, UUID sender, String partyID, boolean answer) {
         pendingInvites.remove(pendingPlayer);
+        String player = Bukkit.getPlayer(pendingPlayer).getName();
         if (answer) {
             addPlayerToParty(pendingPlayer, partyID);
-            sendPartyMessage(
-                    PartyChat.MESSAGE_PREFIX + ChatColor.DARK_AQUA
-                            + Bukkit.getPlayer(pendingPlayer).getName() + " has joined the party!",
-                    partyID);
-            partyChat.logger.info("Player " + pendingPlayer + " has accepted invite for party " + partyID);
+            sendPartyMessage(PartyChat.MESSAGE_PREFIX + player + " has joined the party!", partyID);
+            partyChat.logger.info(player + " has accepted invite for party " + partyID);
         } else {
-            Bukkit.getPlayer(lookupOwner(partyID))
-                    .sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED
-                            + Bukkit.getPlayer(pendingPlayer).getName() + " has denied the invite.");
-            Bukkit.getPlayer(pendingPlayer)
-                    .sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED + "You denied the party invite.");
-            partyChat.logger.info("Player " + pendingPlayer + " has denied invite for party " + partyID);
+            Bukkit.getPlayer(sender).sendMessage(PartyChat.MESSAGE_PREFIX + player + " has denied the invite.");
+            Bukkit.getPlayer(pendingPlayer).sendMessage(PartyChat.MESSAGE_PREFIX + "You denied the party invite.");
+            partyChat.logger.info(player + " has denied invite for party " + partyID);
         }
     }
 
@@ -159,6 +154,8 @@ public class PartyManagement {
         partyMembers.put(newMember.toString());
         jsonObject.put("members", partyMembers);
         writeFile(partyFile, jsonObject);
+        String player = Bukkit.getPlayer(newMember).getName();
+        partyChat.logger.info("Adding player " + player + "to party " + partyID);
     }
 
     /**
@@ -172,6 +169,8 @@ public class PartyManagement {
         JSONObject jsonObject = readFile(partyFile);
         jsonObject.put("owner", newOwner.toString());
         writeFile(partyFile, jsonObject);
+        String player = Bukkit.getPlayer(newOwner).getName();
+        partyChat.logger.info("Party " + partyID + " is now owned by " + player);
     }
 
     /**
@@ -207,6 +206,8 @@ public class PartyManagement {
         }
         jsonObject.put("members", partyMembers);
         writeFile(partyFile, jsonObject);
+        String player = Bukkit.getPlayer(oldPlayer).getName();
+        partyChat.logger.info(player + " has left party " + partyID);
     }
 
     /**
@@ -307,6 +308,8 @@ public class PartyManagement {
 
         File partyFile = new File(partyChat.partyFolder.toFile(), random + ".json");
         writeFile(partyFile, partyObject);
+        String owner = Bukkit.getPlayer(player).getName();
+        partyChat.logger.info("Party " + random + " has been created by " + owner);
     }
 
     /**
@@ -327,7 +330,9 @@ public class PartyManagement {
         trusted.put(player.toString());
         jsonObject.put("trusted", trusted);
         writeFile(partyFile, jsonObject);
-        sendPartyMessage(Bukkit.getPlayer(player).getName() + " has become a trusted member.", partyID);
+        String trustedPlayer = Bukkit.getPlayer(player).getName();
+        sendPartyMessage(trustedPlayer + " has become a trusted member.", partyID);
+        partyChat.logger.info(trustedPlayer + " is now a trusted player of " + partyID);
     }
 
     /**
@@ -370,5 +375,7 @@ public class PartyManagement {
         jsonObject.put("trusted", trusted);
         writeFile(partyFile, jsonObject);
         sendPartyMessage(Bukkit.getPlayer(player).getName() + " has been removed as a trusted member.", partyID);
+        String trustedPlayer = Bukkit.getPlayer(player).getName();
+        partyChat.logger.info(trustedPlayer + " is no longer a trusted player of " + partyID);
     }
 }
