@@ -307,6 +307,9 @@ public class CommandParty implements TabExecutor {
                                 if (partyChat.partyManagement.checkTrusted(trust)) {
                                     sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED
                                             + "That player is already trusted.");
+                                } else if (partyChat.partyManagement.isPlayerOwner(trust)) {
+                                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.RED
+                                            + "You cannot add yourself as a trusted member, you are the owner.");
                                 } else {
                                     partyChat.partyManagement.trustPlayer(trust);
                                     sender.sendMessage(PartyChat.MESSAGE_PREFIX + ChatColor.GREEN
