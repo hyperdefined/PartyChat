@@ -17,7 +17,7 @@ A simple party chat plugin. Talk privately with other players.
 * Commands for party management.
 
 ## Documentation
-Visit the [wiki](https://github.com/hyperdefined/PartyChat/wiki) for help.
+Visit the [wiki](https://docs.hyper.lol/partychat) for help.
 
 ## License
 This plugin is released under GNU General Public License v3. See [LICENSE](https://github.com/hyperdefined/PartyChat/blob/master/LICENSE).
