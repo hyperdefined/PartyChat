@@ -298,22 +298,18 @@ public class PartyManagement {
      * @param player UUID of new party owner.
      */
     public void createParty(UUID player) {
-        String charset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        StringBuilder random = new StringBuilder();
-        for (int i = 0; i < 10; i++) {
-            random.append(charset.charAt(new Random().nextInt(charset.length() - 1)));
-        }
+        UUID newUUID = UUID.randomUUID();
         JSONObject partyObject = new JSONObject();
         partyObject.put("owner", player.toString());
-        partyObject.put("id", random.toString());
+        partyObject.put("id", newUUID.toString());
         JSONArray members = new JSONArray();
         members.put(player.toString());
         partyObject.put("members", members);
 
-        File partyFile = new File(partyChat.partyFolder.toFile(), random + ".json");
+        File partyFile = new File(partyChat.partyFolder.toFile(), newUUID + ".json");
         writeFile(partyFile, partyObject);
         String owner = Bukkit.getPlayer(player).getName();
-        partyChat.logger.info("Party " + random + " has been created by " + owner);
+        partyChat.logger.info("Party " + newUUID + " has been created by " + owner);
     }
 
     /**

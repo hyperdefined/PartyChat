@@ -3,7 +3,8 @@ version: ${project.version}
 main: lol.hyper.partychat.PartyChat
 api-version: 1.13
 author: hyperdefined
-description: Simple party chat.
+website: https://www.spigotmc.org/resources/partychat.88947/
+description: A simple party chat plugin.
 commands:
   party:
     description: The main party command.
