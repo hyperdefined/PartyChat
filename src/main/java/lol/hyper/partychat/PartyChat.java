@@ -21,6 +21,7 @@ import lol.hyper.githubreleaseapi.GitHubRelease;
 import lol.hyper.githubreleaseapi.GitHubReleaseAPI;
 import lol.hyper.partychat.commands.CommandParty;
 import lol.hyper.partychat.commands.CommandPartyChatMessage;
+import lol.hyper.partychat.events.ChatEvents;
 import lol.hyper.partychat.tools.PartyManagement;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -44,14 +45,17 @@ public final class PartyChat extends JavaPlugin {
     public CommandParty commandParty;
     public CommandPartyChatMessage commandPartyChatMessage;
     public PartyManagement partyManagement;
+    public ChatEvents chatEvents;
 
     @Override
     public void onEnable() {
         partyManagement = new PartyManagement(this);
         commandParty = new CommandParty(this);
         commandPartyChatMessage = new CommandPartyChatMessage(this);
+        chatEvents = new ChatEvents(this);
         this.getCommand("party").setExecutor(commandParty);
         this.getCommand("pc").setExecutor(commandPartyChatMessage);
+        Bukkit.getPluginManager().registerEvents(chatEvents, this);
 
         new Metrics(this, 10306);
 
