@@ -41,6 +41,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -56,7 +57,7 @@ public class CommandPartyChatMessage implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (sender instanceof ConsoleCommandSender) {
             sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You must be a player for this command.");
             return true;
@@ -68,6 +69,7 @@ public class CommandPartyChatMessage implements CommandExecutor {
         }
         if (partyChat.partyManagement.lookupParty(player) == null) {
             sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+            return true;
         }
 
         String playerMessage = String.join(" ", args);
@@ -77,9 +79,9 @@ public class CommandPartyChatMessage implements CommandExecutor {
             playerMessage = ChatColor.GREEN + playerMessage;
         }
 
-        String finaMlessage = "<" + Bukkit.getPlayer(player).getName() + "> " + playerMessage;
-        partyChat.partyManagement.sendPartyMessage(finaMlessage, partyChat.partyManagement.lookupParty(player));
-        partyChat.logger.info("[" + partyChat.partyManagement.lookupParty(player) + "] " + finaMlessage);
+        String finalMessage = "<" + Bukkit.getPlayer(player).getName() + "> " + playerMessage;
+        partyChat.partyManagement.sendPartyMessage(finalMessage, partyChat.partyManagement.lookupParty(player));
+        partyChat.logger.info("[" + partyChat.partyManagement.lookupParty(player) + "] " + finalMessage);
         return true;
     }
 }
