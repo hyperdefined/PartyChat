@@ -71,14 +71,6 @@
                         <configuration>
                             <relocations>
                                 <relocation>
-                                    <pattern>org.json</pattern>
-                                    <shadedPattern>lol.hyper.partychat.json</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.apache.commons.io</pattern>
-                                    <shadedPattern>lol.hyper.partychat.commons.io</shadedPattern>
-                                </relocation>
-                                <relocation>
                                     <pattern>org.bstats</pattern>
                                     <shadedPattern>lol.hyper.partychat.bstats</shadedPattern>
                                 </relocation>
@@ -115,11 +107,13 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20211205</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.11.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.bstats</groupId>
@@ -131,6 +125,7 @@
             <groupId>lol.hyper</groupId>
             <artifactId>github-release-api</artifactId>
             <version>1.0.1</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

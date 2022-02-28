@@ -11,3 +11,7 @@ commands:
   pc:
     description: Send private party messages.
     aliases: [p]
+libraries:
+  - org.json:json:20211205
+  - commons-io:commons-io:2.11.0
+  - lol.hyper:github-release-api:1.0.1
