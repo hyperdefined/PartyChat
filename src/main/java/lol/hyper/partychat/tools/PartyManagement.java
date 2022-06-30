@@ -129,7 +129,8 @@ public class PartyManagement {
         Party party = loadParty(pendingInvites.get(pendingPlayer));
         if (answer) {
             addPlayerToParty(pendingPlayer, party.getPartyID());
-            sendPartyMessage(Component.text(invitedPlayer.getName() + " has joined the party!").color(NamedTextColor.GREEN), party.getPartyID());
+            String newJoin = partyChat.getMessage("commands.accept.sender-accepted").replace("%player%", invitedPlayer.getName());
+            sendPartyMessage(miniMessage.deserialize(newJoin), party.getPartyID());
             partyChat.logger.info(pendingPlayer + " has accepted invite for party " + party.getPartyID());
         } else {
             Player sentInvitePlayer = Bukkit.getPlayer(pendingInvites.get(pendingPlayer));

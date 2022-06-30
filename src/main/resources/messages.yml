@@ -38,6 +38,7 @@ commands:
     party-created: "<green>Party has been created.</green>"
   accept:
     no-invites: "<red>You do not have a pending invite right now.</red>"
+    sender-accepted: "<green>%player% has joined the party!</green>"
   deny:
     no-invites: "<red>You do not have a pending invite right now.</red>"
     denied: "<red>You have denied the invite.</red>"
