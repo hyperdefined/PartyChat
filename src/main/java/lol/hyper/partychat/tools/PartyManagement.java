@@ -20,7 +20,6 @@ package lol.hyper.partychat.tools;
 import lol.hyper.partychat.PartyChat;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.apache.commons.io.FilenameUtils;
 import org.bukkit.Bukkit;

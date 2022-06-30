@@ -39,6 +39,7 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class CommandPartyChatMessage implements TabExecutor {
             audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.must-be-a-player")));
             return true;
         }
-        UUID player = Bukkit.getPlayerExact(sender.getName()).getUniqueId();
+        UUID player = ((Player) sender).getUniqueId();
         if (args.length < 1) {
             audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.pc.invalid-syntax")));
             return true;

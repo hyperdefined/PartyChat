@@ -74,7 +74,7 @@ public class CommandParty implements TabExecutor {
             return true;
         }
 
-        UUID commandSender = Bukkit.getPlayerExact(sender.getName()).getUniqueId();
+        UUID commandSender = ((Player) sender).getUniqueId();
         Party senderParty = partyChat.partyManagement.loadParty(commandSender);
 
         switch (args[0]) {
