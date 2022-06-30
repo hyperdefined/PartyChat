@@ -84,5 +84,5 @@ commands:
     leave-trust: "<green>%player% has been removed as a trusted member.</green>"
   pc:
     invalid-syntax: "<red>Invalid syntax. Do /pc on/off instead.</red>"
-    on: "<green>Party chat has been enabled. All messages will be sent to your party members only.</green>"
-    off: "<green>Party chat has been disabled. All messages will be sent to everyone.</green>"
+    enabled: "<green>Party chat has been enabled. All messages will be sent to your party members only.</green>"
+    disabled: "<green>Party chat has been disabled. All messages will be sent to everyone.</green>"

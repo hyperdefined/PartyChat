@@ -79,11 +79,12 @@ public class CommandPartyChatMessage implements TabExecutor {
         if (arg.equalsIgnoreCase("on") || arg.equalsIgnoreCase("off")) {
             if (arg.equalsIgnoreCase("on")) {
                 partyChatEnabled.add(player);
-                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.pc.on")));
+                sender.sendMessage(String.valueOf(partyChat.messages.getConfigurationSection("commands.pc").getKeys(false)));
+                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.pc.enabled")));
             }
             if (arg.equalsIgnoreCase("off")) {
                 partyChatEnabled.remove(player);
-                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.pc.off")));
+                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.pc.disabled")));
             }
         } else {
             audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.pc.invalid-syntax")));
