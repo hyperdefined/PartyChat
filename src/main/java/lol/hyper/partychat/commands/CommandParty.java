@@ -75,6 +75,7 @@ public class CommandParty implements TabExecutor {
         }
 
         UUID commandSender = Bukkit.getPlayerExact(sender.getName()).getUniqueId();
+        Party senderParty = partyChat.partyManagement.loadParty(commandSender);
 
         switch (args[0]) {
             case "help":
@@ -95,7 +96,7 @@ public class CommandParty implements TabExecutor {
                     audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.invite.invalid-syntax")));
                     return true;
                 }
-                if (partyChat.partyManagement.loadParty(commandSender) == null) {
+                if (senderParty == null) {
                     audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
                     return true;
                 }
@@ -114,7 +115,7 @@ public class CommandParty implements TabExecutor {
                         audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-in-party")));
                         return true;
                     }
-                    String partyID = partyChat.partyManagement.loadParty(commandSender).getPartyID();
+                    String partyID = senderParty.getPartyID();
                     partyChat.partyManagement.invitePlayer(playerToInvite.getUniqueId(), commandSender, partyID);
                     return true;
                 }
@@ -122,7 +123,7 @@ public class CommandParty implements TabExecutor {
                 return true;
             }
             case "create": {
-                if (partyChat.partyManagement.loadParty(commandSender) == null) {
+                if (senderParty == null) {
                     partyChat.partyManagement.createParty(commandSender);
                     audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.create.party-created")));
                 } else {
@@ -147,7 +148,7 @@ public class CommandParty implements TabExecutor {
                 return true;
             }
             case "leave": {
-                if (partyChat.partyManagement.loadParty(commandSender) == null) {
+                if (senderParty == null) {
                     audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
                     return true;
                 }
@@ -156,13 +157,13 @@ public class CommandParty implements TabExecutor {
                     return true;
                 }
                 Player playerLeaving = (Player) sender;
-                String partyID = partyChat.partyManagement.loadParty(playerLeaving.getUniqueId()).getPartyID();
+                String partyID = senderParty.getPartyID();
                 partyChat.partyManagement.sendPartyMessage(miniMessage.deserialize(partyChat.getMessage("commands.leave.has-left").replace("%player%", playerLeaving.getName())), partyID);
                 partyChat.partyManagement.removePlayerFromParty(commandSender, partyID);
                 return true;
             }
             case "disband": {
-                if (partyChat.partyManagement.loadParty(commandSender) == null) {
+                if (senderParty == null) {
                     audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
                     return true;
                 }
@@ -181,7 +182,7 @@ public class CommandParty implements TabExecutor {
                     audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.invalid-syntax")));
                     return true;
                 }
-                if (partyChat.partyManagement.loadParty(commandSender) == null) {
+                if (senderParty == null) {
                     audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
                     return true;
                 }
@@ -192,9 +193,8 @@ public class CommandParty implements TabExecutor {
                         return true;
                     }
                     Player playerToKick = Bukkit.getPlayerExact(args[1]);
-                    Party party = partyChat.partyManagement.loadParty(commandSender);
                     String partyIDKickingPlayer = partyChat.partyManagement.loadParty(playerToKick.getUniqueId()).getPartyID();
-                    String partyID = party.getPartyID();
+                    String partyID = senderParty.getPartyID();
                     if (!partyID.equals(partyIDKickingPlayer)) {
                         audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.not-in-party")));
                         return true;
@@ -207,7 +207,7 @@ public class CommandParty implements TabExecutor {
                         audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.kick-yourself")));
                         return true;
                     }
-                    if (party.getTrustedMembers().contains(playerToKick.getUniqueId())) {
+                    if (senderParty.getTrustedMembers().contains(playerToKick.getUniqueId())) {
                         audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.kick-trusted")));
                         return true;
                     }
@@ -224,7 +224,7 @@ public class CommandParty implements TabExecutor {
                     audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.transfer.invalid-syntax")));
                     return true;
                 }
-                if (partyChat.partyManagement.loadParty(commandSender) == null) {
+                if (senderParty == null) {
                     audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
                     return true;
                 }
@@ -234,7 +234,7 @@ public class CommandParty implements TabExecutor {
                         return true;
                     }
                     Player newOwner = Bukkit.getPlayerExact(args[1]);
-                    String partyID = partyChat.partyManagement.loadParty(commandSender).getPartyID();
+                    String partyID = senderParty.getPartyID();
                     String newOwnerMessage = partyChat.getMessage("commands.transfer.new-owner").replace("%player%", newOwner.getName());
                     partyChat.partyManagement.sendPartyMessage(miniMessage.deserialize(newOwnerMessage), partyID);
                     partyChat.partyManagement.updatePartyOwner(newOwner.getUniqueId(), partyID);
@@ -244,17 +244,16 @@ public class CommandParty implements TabExecutor {
                 return true;
             }
             case "info": {
-                if (partyChat.partyManagement.loadParty(commandSender) == null) {
+                if (senderParty == null) {
                     audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
                     return true;
                 }
-                Party party = partyChat.partyManagement.loadParty(commandSender);
                 UUID partyOwner = party.getPartyOwner();
                 List<String> infoCommandLines = partyChat.messages.getStringList("commands.info.command");
                 List<String> players = new ArrayList<>();
                 // since members are saved as UUIDs, we have to convert them to names
                 // if the server doesn't have the name saved, use the UUID
-                for (UUID player : party.getPartyMembers()) {
+                for (UUID player : senderParty.getPartyMembers()) {
                     OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player);
                     String name = offlinePlayer.getName();
                     if (name != null) {
@@ -267,10 +266,10 @@ public class CommandParty implements TabExecutor {
                 for (int i = 0; i < infoCommandLines.size(); i++) {
                     String line = infoCommandLines.get(i);
                     if (line.contains("%size%")) {
-                        line = line.replace("%size%", String.valueOf(party.getPartyMembers().size()));
+                        line = line.replace("%size%", String.valueOf(senderParty.getPartyMembers().size()));
                     }
                     if (line.contains("%ID%")) {
-                        line = line.replace("%ID%", party.getPartyID());
+                        line = line.replace("%ID%", senderParty.getPartyID());
                     }
                     if (line.contains("%members%")) {
                         line = String.join(", ", players);
@@ -298,7 +297,7 @@ public class CommandParty implements TabExecutor {
                     audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.trust.invalid-syntax")));
                     return true;
                 }
-                if (partyChat.partyManagement.loadParty(commandSender) == null) {
+                if (senderParty == null) {
                     audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
                     return true;
                 }
@@ -308,7 +307,7 @@ public class CommandParty implements TabExecutor {
                         return true;
                     }
                     Player memberToTrust = Bukkit.getPlayerExact(args[1]);
-                    String partyID = partyChat.partyManagement.loadParty(commandSender).getPartyID();
+                    String partyID = senderParty.getPartyID();
                     String partyIDTrusted = partyChat.partyManagement.loadParty(memberToTrust.getUniqueId()).getPartyID();
                     if (!partyID.equals(partyIDTrusted)) {
                         audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.trust.not-in-party")));
@@ -333,7 +332,7 @@ public class CommandParty implements TabExecutor {
                     audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.untrust.invalid-syntax")));
                     return true;
                 }
-                if (partyChat.partyManagement.loadParty(commandSender) == null) {
+                if (senderParty == null) {
                     audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
                     return true;
                 }
@@ -343,7 +342,7 @@ public class CommandParty implements TabExecutor {
                         return true;
                     }
                     Player memberToTrust = Bukkit.getPlayerExact(args[1]);
-                    String partyID = partyChat.partyManagement.loadParty(commandSender).getPartyID();
+                    String partyID = senderParty.getPartyID();
                     String partyIDTrusted = partyChat.partyManagement.loadParty(memberToTrust.getUniqueId()).getPartyID();
                     if (!partyID.equals(partyIDTrusted)) {
                         audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.untrust.not-in-party")));
