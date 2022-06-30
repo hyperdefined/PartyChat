@@ -102,11 +102,11 @@ public class CommandParty implements TabExecutor {
                 }
                 if (partyChat.partyManagement.isPlayerOwner(commandSender)
                         || partyChat.partyManagement.checkTrusted(commandSender)) {
-                    if (Bukkit.getPlayerExact(args[1]) == null) {
+                    Player playerToInvite = Bukkit.getPlayerExact(args[1]);
+                    if (playerToInvite == null) {
                         audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-not-found")));
                         return true;
                     }
-                    Player playerToInvite = Bukkit.getPlayerExact(args[1]);
                     if (partyChat.partyManagement.pendingInvites.containsKey(playerToInvite.getUniqueId())) {
                         audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.invite.pending-invite")));
                         return true;
@@ -188,11 +188,11 @@ public class CommandParty implements TabExecutor {
                 }
                 if (partyChat.partyManagement.isPlayerOwner(commandSender)
                         || partyChat.partyManagement.checkTrusted(commandSender)) {
-                    if (Bukkit.getPlayerExact(args[1]) == null) {
+                    Player playerToKick = Bukkit.getPlayerExact(args[1]);
+                    if (playerToKick == null) {
                         audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-not-found")));
                         return true;
                     }
-                    Player playerToKick = Bukkit.getPlayerExact(args[1]);
                     String partyIDKickingPlayer = partyChat.partyManagement.loadParty(playerToKick.getUniqueId()).getPartyID();
                     String partyID = senderParty.getPartyID();
                     if (!partyID.equals(partyIDKickingPlayer)) {
@@ -229,11 +229,11 @@ public class CommandParty implements TabExecutor {
                     return true;
                 }
                 if (partyChat.partyManagement.isPlayerOwner(commandSender)) {
-                    if (Bukkit.getPlayerExact(args[1]) == null) {
+                    Player newOwner = Bukkit.getPlayerExact(args[1]);
+                    if (newOwner == null) {
                         audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-not-found")));
                         return true;
                     }
-                    Player newOwner = Bukkit.getPlayerExact(args[1]);
                     String partyID = senderParty.getPartyID();
                     String newOwnerMessage = partyChat.getMessage("commands.transfer.new-owner").replace("%player%", newOwner.getName());
                     partyChat.partyManagement.sendPartyMessage(miniMessage.deserialize(newOwnerMessage), partyID);
@@ -248,7 +248,7 @@ public class CommandParty implements TabExecutor {
                     audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
                     return true;
                 }
-                UUID partyOwner = party.getPartyOwner();
+                UUID partyOwner = senderParty.getPartyOwner();
                 List<String> infoCommandLines = partyChat.messages.getStringList("commands.info.command");
                 List<String> players = new ArrayList<>();
                 // since members are saved as UUIDs, we have to convert them to names
@@ -302,11 +302,11 @@ public class CommandParty implements TabExecutor {
                     return true;
                 }
                 if (partyChat.partyManagement.isPlayerOwner(commandSender)) {
-                    if (Bukkit.getPlayerExact(args[1]) == null) {
+                    Player memberToTrust = Bukkit.getPlayerExact(args[1]);
+                    if (memberToTrust == null) {
                         audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-not-found")));
                         return true;
                     }
-                    Player memberToTrust = Bukkit.getPlayerExact(args[1]);
                     String partyID = senderParty.getPartyID();
                     String partyIDTrusted = partyChat.partyManagement.loadParty(memberToTrust.getUniqueId()).getPartyID();
                     if (!partyID.equals(partyIDTrusted)) {
@@ -337,26 +337,26 @@ public class CommandParty implements TabExecutor {
                     return true;
                 }
                 if (partyChat.partyManagement.isPlayerOwner(commandSender)) {
-                    if (Bukkit.getPlayerExact(args[1]) == null) {
+                    Player memberToUnTrust = Bukkit.getPlayerExact(args[1]);
+                    if (memberToUnTrust == null) {
                         audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-not-found")));
                         return true;
                     }
-                    Player memberToTrust = Bukkit.getPlayerExact(args[1]);
                     String partyID = senderParty.getPartyID();
-                    String partyIDTrusted = partyChat.partyManagement.loadParty(memberToTrust.getUniqueId()).getPartyID();
+                    String partyIDTrusted = partyChat.partyManagement.loadParty(memberToUnTrust.getUniqueId()).getPartyID();
                     if (!partyID.equals(partyIDTrusted)) {
                         audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.untrust.not-in-party")));
                         return true;
                     }
-                    if (commandSender.equals(memberToTrust.getUniqueId())) {
+                    if (commandSender.equals(memberToUnTrust.getUniqueId())) {
                         audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.untrust.already-owner")));
                         return true;
                     }
-                    if (!partyChat.partyManagement.checkTrusted(memberToTrust.getUniqueId())) {
+                    if (!partyChat.partyManagement.checkTrusted(memberToUnTrust.getUniqueId())) {
                         audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.untrust.not-trusted")));
                         return true;
                     }
-                    partyChat.partyManagement.removeTrustedPlayer(memberToTrust.getUniqueId());
+                    partyChat.partyManagement.removeTrustedPlayer(memberToUnTrust.getUniqueId());
                     return true;
                 }
                 audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.untrust.not-owner")));
