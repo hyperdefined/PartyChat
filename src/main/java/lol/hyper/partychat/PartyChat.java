@@ -23,11 +23,12 @@ import lol.hyper.partychat.commands.CommandParty;
 import lol.hyper.partychat.commands.CommandPartyChatMessage;
 import lol.hyper.partychat.events.ChatEvents;
 import lol.hyper.partychat.tools.PartyManagement;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import org.bukkit.metadata.MetadataValue;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -38,17 +39,23 @@ import java.util.logging.Logger;
 
 public final class PartyChat extends JavaPlugin {
 
-    public static final String MESSAGE_PREFIX = ChatColor.GREEN + "[Party] " + ChatColor.DARK_AQUA;
     public final Path partyFolder = Paths.get(this.getDataFolder() + File.separator + "parties");
     public final Logger logger = this.getLogger();
+    public final File messagesFile = new File(this.getDataFolder(), "messages.yml");
+    public FileConfiguration messages;
+    public final int MESSAGES_VERSION = 1;
 
     public CommandParty commandParty;
     public CommandPartyChatMessage commandPartyChatMessage;
     public PartyManagement partyManagement;
     public ChatEvents chatEvents;
 
+    public final MiniMessage miniMessage = MiniMessage.miniMessage();
+    private BukkitAudiences adventure;
+
     @Override
     public void onEnable() {
+        this.adventure = BukkitAudiences.create(this);
         partyManagement = new PartyManagement(this);
         commandParty = new CommandParty(this);
         commandPartyChatMessage = new CommandPartyChatMessage(this);
@@ -69,6 +76,16 @@ public final class PartyChat extends JavaPlugin {
         }
 
         Bukkit.getScheduler().runTaskAsynchronously(this, this::checkForUpdates);
+
+
+        if (!messagesFile.exists()) {
+            this.saveResource("messages.yml", true);
+            logger.info("Copying default messages!");
+        }
+        messages = YamlConfiguration.loadConfiguration(messagesFile);
+        if (messages.getInt("version") != MESSAGES_VERSION) {
+            logger.warning("Your messages file is outdated! Please regenerate this file!.");
+        }
     }
 
     public void checkForUpdates() {
@@ -92,5 +109,26 @@ public final class PartyChat extends JavaPlugin {
         } else {
             logger.warning("A new version is available (" + latest.getTagVersion() + ")! You are running version " + current.getTagVersion() + ". You are " + buildsBehind + " version(s) behind.");
         }
+    }
+
+    public BukkitAudiences getAdventure() {
+        if(this.adventure == null) {
+            throw new IllegalStateException("Tried to access Adventure when the plugin was disabled!");
+        }
+        return this.adventure;
+    }
+
+    /**
+     * Gets a message from messages.yml.
+     * @param path The path to the message.
+     * @return Component with formatting applied.
+     */
+    public String getMessage(String path) {
+        String message = messages.getString(path);
+        if (message == null) {
+            logger.warning(path + " is not a valid message!");
+            return "<red>Invalid path! " + path + "</red>";
+        }
+        return message;
     }
 }

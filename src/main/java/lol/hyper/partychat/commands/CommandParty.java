@@ -35,9 +35,13 @@
 package lol.hyper.partychat.commands;
 
 import lol.hyper.partychat.PartyChat;
-import lol.hyper.partychat.tools.UUIDLookup;
+import lol.hyper.partychat.tools.Party;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -53,17 +57,20 @@ import java.util.UUID;
 public class CommandParty implements TabExecutor {
 
     private final PartyChat partyChat;
+    private final BukkitAudiences audiences;
+    private final MiniMessage miniMessage;
 
     public CommandParty(PartyChat partyChat) {
         this.partyChat = partyChat;
+        this.audiences = partyChat.getAdventure();
+        this.miniMessage = partyChat.miniMessage;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (args.length == 0 || sender instanceof ConsoleCommandSender) {
-            sender.sendMessage(PartyChat.MESSAGE_PREFIX + "PartyChat version "
-                    + partyChat.getDescription().getVersion() + ". Created by hyperdefined.");
-            sender.sendMessage(PartyChat.MESSAGE_PREFIX + "Use /party help for command help.");
+            audiences.sender(sender).sendMessage(Component.text("PartyChat version " + partyChat.getDescription().getVersion() + ". Created by hyperdefined.").color(NamedTextColor.GREEN));
+            audiences.sender(sender).sendMessage(Component.text("Use /party help for command help.").color(NamedTextColor.GREEN));
             return true;
         }
 
@@ -71,63 +78,55 @@ public class CommandParty implements TabExecutor {
 
         switch (args[0]) {
             case "help":
-                sender.sendMessage(ChatColor.GOLD + "--------------------------------------------");
-                sender.sendMessage(ChatColor.DARK_AQUA + "/party help - Shows this menu.");
-                sender.sendMessage(ChatColor.DARK_AQUA + "/party create - Make a new party.");
-                sender.sendMessage(ChatColor.DARK_AQUA
-                        + "/party invite <player> - Invite a player to the party. Party owner only.");
-                sender.sendMessage(ChatColor.DARK_AQUA + "/party accept/deny - Accept or deny an invite.");
-                sender.sendMessage(
-                        ChatColor.DARK_AQUA + "/party kick <player> - Kick a player from the party. Party owner only.");
-                sender.sendMessage(ChatColor.DARK_AQUA + "/party leave - Leave the party.");
-                sender.sendMessage(ChatColor.DARK_AQUA + "/party disband - Delete the party. Party owner only.");
-                sender.sendMessage(ChatColor.DARK_AQUA + "/party info - Information about the party.");
-                sender.sendMessage(ChatColor.DARK_AQUA
-                        + "/party transfer <player> - Transfer ownership of party. Party owner only.");
-                sender.sendMessage(ChatColor.DARK_AQUA + "/party trust <player> - Trust a player in the party. They can invite and kick.");
-                sender.sendMessage(ChatColor.DARK_AQUA + "/party untrust <player> - Remove a trusted player.");
-                sender.sendMessage(ChatColor.DARK_AQUA + "/pc <message> - Send a message to the party.");
-                sender.sendMessage(ChatColor.GOLD + "--------------------------------------------");
+                List<String> helpCommandLines = partyChat.messages.getStringList("commands.help-command");
+                Component helpCommand = Component.empty();
+                for (int i = 0; i < helpCommandLines.size(); i++) {
+                    String line = partyChat.messages.getStringList("commands.help-command").get(i);
+                    if (i == 0) {
+                        helpCommand = miniMessage.deserialize(line);
+                    } else {
+                        helpCommand = helpCommand.append(Component.newline()).append(miniMessage.deserialize(line));
+                    }
+                }
+                audiences.sender(sender).sendMessage(helpCommand);
                 break;
             case "invite": {
                 if (args.length == 1 || args.length > 2) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "Invalid syntax. Do /party invite <player> instead.");
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.invite.invalid-syntax")));
                     return true;
                 }
-                if (partyChat.partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(
-                            PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+                if (partyChat.partyManagement.loadParty(commandSender) == null) {
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
                     return true;
                 }
                 if (partyChat.partyManagement.isPlayerOwner(commandSender)
                         || partyChat.partyManagement.checkTrusted(commandSender)) {
                     if (Bukkit.getPlayerExact(args[1]) == null) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + "That player was not found.");
+                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-not-found")));
                         return true;
                     }
                     Player playerToInvite = Bukkit.getPlayerExact(args[1]);
                     if (partyChat.partyManagement.pendingInvites.containsKey(playerToInvite.getUniqueId())) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + "That player already has a pending invite.");
+                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.invite.pending-invite")));
                         return true;
                     }
-                    if (partyChat.partyManagement.lookupParty(playerToInvite.getUniqueId()) != null) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + "That player is already in a party.");
+                    if (partyChat.partyManagement.loadParty(playerToInvite.getUniqueId()) != null) {
+                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-in-party")));
                         return true;
                     }
-                    String partyID = partyChat.partyManagement.lookupParty(commandSender);
+                    String partyID = partyChat.partyManagement.loadParty(commandSender).getPartyID();
                     partyChat.partyManagement.invitePlayer(playerToInvite.getUniqueId(), commandSender, partyID);
                     return true;
                 }
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX
-                        + "You cannot invite members to the party. The owner or any trusted members can.");
+                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.invite.cant-invite")));
                 return true;
             }
             case "create": {
-                if (partyChat.partyManagement.lookupParty(commandSender) == null) {
+                if (partyChat.partyManagement.loadParty(commandSender) == null) {
                     partyChat.partyManagement.createParty(commandSender);
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "Party has been created.");
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.create.party-created")));
                 } else {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You are already in a party.");
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-in-party")));
                 }
                 return true;
             }
@@ -135,7 +134,7 @@ public class CommandParty implements TabExecutor {
                 if (partyChat.partyManagement.pendingInvites.containsKey(commandSender)) {
                     partyChat.partyManagement.removeInvite(commandSender, true);
                 } else {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You do not have a pending invite right now.");
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.accept.no-invites")));
                 }
                 return true;
             }
@@ -143,229 +142,224 @@ public class CommandParty implements TabExecutor {
                 if (partyChat.partyManagement.pendingInvites.containsKey(commandSender)) {
                     partyChat.partyManagement.removeInvite(commandSender, false);
                 } else {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You do not have a pending invite right now.");
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.deny.no-invites")));
                 }
                 return true;
             }
             case "leave": {
-                if (partyChat.partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(
-                            PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+                if (partyChat.partyManagement.loadParty(commandSender) == null) {
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
                     return true;
                 }
                 if (partyChat.partyManagement.isPlayerOwner(commandSender)) {
-                    sender.sendMessage(
-                            PartyChat.MESSAGE_PREFIX
-                                    + "You cannot leave as the owner. To delete the party, do /party disband. You can transfer the ownership with /party <transfer> <player>.");
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.leave.owner-leave")));
                     return true;
                 }
                 Player playerLeaving = (Player) sender;
-                String partyID = partyChat.partyManagement.lookupParty(playerLeaving.getUniqueId());
-                partyChat.partyManagement.sendPartyMessage(playerLeaving.getName() + " has left the party.", partyID);
+                String partyID = partyChat.partyManagement.loadParty(playerLeaving.getUniqueId()).getPartyID();
+                partyChat.partyManagement.sendPartyMessage(miniMessage.deserialize(partyChat.getMessage("commands.leave.has-left").replace("%player%", playerLeaving.getName())), partyID);
                 partyChat.partyManagement.removePlayerFromParty(commandSender, partyID);
                 return true;
             }
             case "disband": {
-                if (partyChat.partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(
-                            PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+                if (partyChat.partyManagement.loadParty(commandSender) == null) {
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
                     return true;
                 }
                 if (!partyChat.partyManagement.isPlayerOwner(commandSender)) {
-                    sender.sendMessage(
-                            PartyChat.MESSAGE_PREFIX + "You aren't the owner of a party. Do /party leave instead.");
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.disband.not-party-owner")));
                     return true;
                 }
                 Player playerLeaving = (Player) sender;
-                String partyID = partyChat.partyManagement.lookupParty(playerLeaving.getUniqueId());
-                partyChat.partyManagement.sendPartyMessage("Party has been deleted.", partyID);
+                String partyID = partyChat.partyManagement.loadParty(playerLeaving.getUniqueId()).getPartyID();
+                partyChat.partyManagement.sendPartyMessage(miniMessage.deserialize(partyChat.getMessage("commands.disband.disbanded")), partyID);
                 partyChat.partyManagement.deleteParty(partyID);
                 return true;
             }
             case "kick": {
                 if (args.length == 1 || args.length > 2) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "Invalid syntax. Do /party kick <player> instead.");
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.invalid-syntax")));
                     return true;
                 }
-                if (partyChat.partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(
-                            PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+                if (partyChat.partyManagement.loadParty(commandSender) == null) {
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
                     return true;
                 }
                 if (partyChat.partyManagement.isPlayerOwner(commandSender)
                         || partyChat.partyManagement.checkTrusted(commandSender)) {
                     if (Bukkit.getPlayerExact(args[1]) == null) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + "That player was not found.");
+                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-not-found")));
                         return true;
                     }
                     Player playerToKick = Bukkit.getPlayerExact(args[1]);
-                    String partyIDKickingPlayer = partyChat.partyManagement.lookupParty(playerToKick.getUniqueId());
-                    String partyID = partyChat.partyManagement.lookupParty(commandSender);
+                    String partyIDKickingPlayer = partyChat.partyManagement.loadParty(playerToKick.getUniqueId()).getPartyID();
+                    String partyID = partyChat.partyManagement.loadParty(commandSender).getPartyID();
                     if (!partyID.equals(partyIDKickingPlayer)) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + "That player is not in your party.");
+                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.not-in-party")));
                         return true;
                     }
                     if (partyChat.partyManagement.isPlayerOwner(playerToKick.getUniqueId())) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You cannot kick the owner of the party.");
+                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.kick-owner")));
                         return true;
                     }
                     if (commandSender.equals(playerToKick.getUniqueId())) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You cannot kick yourself from the party.");
+                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.kick-yourself")));
                         return true;
                     }
-                    partyChat.partyManagement.sendPartyMessage(
-                            playerToKick.getName() + " has been kicked from the party by " + Bukkit.getPlayer(commandSender).getName() + ".", partyID);
+                    String kickMessage = partyChat.getMessage("commands.kick.kicked").replace("%player1%", playerToKick.getName()).replace("%player2%", sender.getName());
+                    partyChat.partyManagement.sendPartyMessage(miniMessage.deserialize(kickMessage), partyID);
                     partyChat.partyManagement.removePlayerFromParty(playerToKick.getUniqueId(), partyID);
                     return true;
                 }
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX
-                        + "You cannot kick members from the party. The owner or any trusted members can.");
+                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.kick-trusted")));
                 return true;
             }
             case "transfer": {
                 if (args.length == 1 || args.length > 2) {
-                    sender.sendMessage(
-                            PartyChat.MESSAGE_PREFIX + "Invalid syntax. Do /party transfer <player> instead.");
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.transfer.invalid-syntax")));
                     return true;
                 }
-                if (partyChat.partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(
-                            PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+                if (partyChat.partyManagement.loadParty(commandSender) == null) {
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
                     return true;
                 }
                 if (partyChat.partyManagement.isPlayerOwner(commandSender)) {
                     if (Bukkit.getPlayerExact(args[1]) == null) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + "That player was not found.");
+                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-not-found")));
                         return true;
                     }
                     Player newOwner = Bukkit.getPlayerExact(args[1]);
-                    String partyID = partyChat.partyManagement.lookupParty(commandSender);
-                    partyChat.partyManagement.sendPartyMessage(
-                            newOwner.getName() + " is now the owner of the party.", partyID);
+                    String partyID = partyChat.partyManagement.loadParty(commandSender).getPartyID();
+                    String newOwnerMessage = partyChat.getMessage("commands.transfer.new-owner").replace("%player%", newOwner.getName());
+                    partyChat.partyManagement.sendPartyMessage(miniMessage.deserialize(newOwnerMessage), partyID);
                     partyChat.partyManagement.updatePartyOwner(newOwner.getUniqueId(), partyID);
                     return true;
                 }
-                sender.sendMessage(
-                        PartyChat.MESSAGE_PREFIX + "You cannot transfer ownership. Only the party owner can.");
+                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.transfer.not-owner")));
                 return true;
             }
             case "info": {
-                if (partyChat.partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(
-                            PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+                if (partyChat.partyManagement.loadParty(commandSender) == null) {
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
                     return true;
                 }
-                Bukkit.getPlayer(commandSender)
-                        .sendMessage(ChatColor.GOLD + "--------------------------------------------");
-                Bukkit.getPlayer(commandSender)
-                        .sendMessage(ChatColor.DARK_AQUA + "Members: " + ChatColor.DARK_AQUA
-                                + partyChat
-                                        .partyManagement
-                                        .listPartyMembers(partyChat.partyManagement.lookupParty(commandSender))
-                                        .size()
-                                + " - ID: " + partyChat.partyManagement.lookupParty(commandSender));
-                ArrayList<UUID> players = partyChat.partyManagement.listPartyMembers(
-                        partyChat.partyManagement.lookupParty(commandSender));
-                ArrayList<String> convertedPlayerNames = new ArrayList<>();
-                UUID partyOwner =
-                        partyChat.partyManagement.lookupOwner(partyChat.partyManagement.lookupParty(commandSender));
-                Bukkit.getScheduler().runTaskAsynchronously(partyChat, () -> {
-                    for (UUID tempPlayer : players) {
-                        if (tempPlayer.equals(partyOwner)) {
-                            convertedPlayerNames.add(UUIDLookup.getName(tempPlayer) + " (Owner)");
-                        } else if (partyChat.partyManagement.checkTrusted(tempPlayer)) {
-                            convertedPlayerNames.add(UUIDLookup.getName(tempPlayer) + " (Trusted)");
+                Party party = partyChat.partyManagement.loadParty(commandSender);
+                UUID partyOwner = party.getPartyOwner();
+                List<String> infoCommandLines = partyChat.messages.getStringList("commands.info.command");
+                List<String> players = new ArrayList<>();
+                // since members are saved as UUIDs, we have to convert them to names
+                // if the server doesn't have the name saved, use the UUID
+                for (UUID player : party.getPartyMembers()) {
+                    OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player);
+                    String name = offlinePlayer.getName();
+                    if (name != null) {
+                        players.add(name);
+                    } else {
+                        players.add(player.toString());
+                    }
+                }
+                Component infoCommand = Component.empty();
+                for (int i = 0; i < infoCommandLines.size(); i++) {
+                    String line = infoCommandLines.get(i);
+                    if (line.contains("%size%")) {
+                        line = line.replace("%size%", String.valueOf(party.getPartyMembers().size()));
+                    }
+                    if (line.contains("%ID%")) {
+                        line = line.replace("%ID%", party.getPartyID());
+                    }
+                    if (line.contains("%members%")) {
+                        line = String.join(", ", players);
+                    }
+                    if (line.contains("%owner%")) {
+                        OfflinePlayer owner = Bukkit.getOfflinePlayer(partyOwner);
+                        String name = owner.getName();
+                        if (name != null) {
+                            line = line.replace("%owner%", name);
                         } else {
-                            convertedPlayerNames.add(UUIDLookup.getName(tempPlayer));
+                            line = line.replace("%owner%", partyOwner.toString());
                         }
                     }
-                    for (String tempPlayer : convertedPlayerNames) {
-                        Bukkit.getPlayer(commandSender).sendMessage(ChatColor.DARK_AQUA + tempPlayer);
+                    if (i == 0) {
+                        infoCommand = miniMessage.deserialize(line);
+                    } else {
+                        infoCommand = infoCommand.append(Component.newline()).append(miniMessage.deserialize(line));
                     }
-                    Bukkit.getPlayer(commandSender)
-                            .sendMessage(ChatColor.GOLD + "--------------------------------------------");
-                });
+                }
+                audiences.sender(sender).sendMessage(infoCommand);
                 return true;
             }
             case "trust": {
                 if (args.length == 1 || args.length > 2) {
-                    sender.sendMessage(PartyChat.MESSAGE_PREFIX + "Invalid syntax. Do /party trust <player> instead.");
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.trust.invalid-syntax")));
                     return true;
                 }
-                if (partyChat.partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(
-                            PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+                if (partyChat.partyManagement.loadParty(commandSender) == null) {
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
                     return true;
                 }
                 if (partyChat.partyManagement.isPlayerOwner(commandSender)) {
                     if (Bukkit.getPlayerExact(args[1]) == null) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + "That player was not found.");
+                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-not-found")));
                         return true;
                     }
                     Player memberToTrust = Bukkit.getPlayerExact(args[1]);
-                    String partyID = partyChat.partyManagement.lookupParty(commandSender);
-                    String partyIDTrusted = partyChat.partyManagement.lookupParty(memberToTrust.getUniqueId());
+                    String partyID = partyChat.partyManagement.loadParty(commandSender).getPartyID();
+                    String partyIDTrusted = partyChat.partyManagement.loadParty(memberToTrust.getUniqueId()).getPartyID();
                     if (!partyID.equals(partyIDTrusted)) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + "That player is not in your party.");
+                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.trust.not-in-party")));
                         return true;
                     }
                     if (commandSender.equals(memberToTrust.getUniqueId())) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX
-                                + "You cannot add yourself as a trusted member, you are the party owner.");
+                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.trust.already-owner")));
                         return true;
                     }
                     if (partyChat.partyManagement.checkTrusted(memberToTrust.getUniqueId())) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + "That player is already trusted.");
+                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.trust.already-trusted")));
                         return true;
                     }
                     partyChat.partyManagement.trustPlayer(memberToTrust.getUniqueId());
                     return true;
                 }
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX
-                        + "You are not the owner of the party, Only the owner can trust members.");
+                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.trust.not-owner")));
                 return true;
             }
             case "untrust": {
                 if (args.length == 1 || args.length > 2) {
-                    sender.sendMessage(
-                            PartyChat.MESSAGE_PREFIX + "Invalid syntax. Do /party untrust <player> instead.");
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.untrust.invalid-syntax")));
                     return true;
                 }
-                if (partyChat.partyManagement.lookupParty(commandSender) == null) {
-                    sender.sendMessage(
-                            PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+                if (partyChat.partyManagement.loadParty(commandSender) == null) {
+                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
                     return true;
                 }
                 if (partyChat.partyManagement.isPlayerOwner(commandSender)) {
                     if (Bukkit.getPlayerExact(args[1]) == null) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + "That player was not found.");
+                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-not-found")));
                         return true;
                     }
                     Player memberToTrust = Bukkit.getPlayerExact(args[1]);
-                    String partyID = partyChat.partyManagement.lookupParty(commandSender);
-                    String partyIDTrusted = partyChat.partyManagement.lookupParty(memberToTrust.getUniqueId());
+                    String partyID = partyChat.partyManagement.loadParty(commandSender).getPartyID();
+                    String partyIDTrusted = partyChat.partyManagement.loadParty(memberToTrust.getUniqueId()).getPartyID();
                     if (!partyID.equals(partyIDTrusted)) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + "That player is not in your party.");
+                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.untrust.not-in-party")));
                         return true;
                     }
                     if (commandSender.equals(memberToTrust.getUniqueId())) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX
-                                + "You cannot remove yourself as a trusted player, you are the party owner.");
+                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.untrust.already-owner")));
                         return true;
                     }
                     if (!partyChat.partyManagement.checkTrusted(memberToTrust.getUniqueId())) {
-                        sender.sendMessage(PartyChat.MESSAGE_PREFIX + "That player is already not trusted.");
+                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.untrust.not-trusted")));
                         return true;
                     }
                     partyChat.partyManagement.removeTrustedPlayer(memberToTrust.getUniqueId());
                     return true;
                 }
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX
-                        + "You are not the owner of the party, Only the owner can remove trusted members.");
+                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.untrust.not-owner")));
                 return true;
             }
             default: {
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + "Invalid option. See /party help for all options.");
+                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.invalid-syntax")));
                 return true;
             }
         }

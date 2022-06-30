@@ -35,8 +35,9 @@
 package lol.hyper.partychat.commands;
 
 import lol.hyper.partychat.PartyChat;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,46 +45,48 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class CommandPartyChatMessage implements TabExecutor {
 
     private final PartyChat partyChat;
     // anyone on this list has party chat enabled
     public final ArrayList<UUID> partyChatEnabled = new ArrayList<>();
+    private final BukkitAudiences audiences;
+    private final MiniMessage miniMessage;
 
     public CommandPartyChatMessage(PartyChat partyChat) {
         this.partyChat = partyChat;
+        this.audiences = partyChat.getAdventure();
+        this.miniMessage = partyChat.miniMessage;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (sender instanceof ConsoleCommandSender) {
-            sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You must be a player for this command.");
+            audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.must-be-a-player")));
             return true;
         }
         UUID player = Bukkit.getPlayerExact(sender.getName()).getUniqueId();
         if (args.length < 1) {
-            sender.sendMessage(PartyChat.MESSAGE_PREFIX + "Invalid syntax. Do /pc on/off instead.");
+            audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.pc.invalid-syntax")));
             return true;
         }
-        if (partyChat.partyManagement.lookupParty(player) == null) {
-            sender.sendMessage(PartyChat.MESSAGE_PREFIX + "You are not in a party. Do /party create to make one.");
+        if (partyChat.partyManagement.loadParty(player) == null) {
+            audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
             return true;
         }
         String arg = args[0];
         if (arg.equalsIgnoreCase("on") || arg.equalsIgnoreCase("off")) {
             if (arg.equalsIgnoreCase("on")) {
                 partyChatEnabled.add(player);
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + "Party chat has been enabled. All messages will be sent to your party members only.");
+                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.pc.on")));
             }
             if (arg.equalsIgnoreCase("off")) {
                 partyChatEnabled.remove(player);
-                sender.sendMessage(PartyChat.MESSAGE_PREFIX + "Party chat has been disabled. All messages will be sent to everyone.");
+                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.pc.off")));
             }
         } else {
-            sender.sendMessage(PartyChat.MESSAGE_PREFIX + "Invalid syntax. Do /pc on/off instead.");
+            audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.pc.invalid-syntax")));
             return true;
         }
         return true;

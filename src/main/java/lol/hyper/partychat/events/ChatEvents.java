@@ -18,6 +18,8 @@
 package lol.hyper.partychat.events;
 
 import lol.hyper.partychat.PartyChat;
+import lol.hyper.partychat.tools.Party;
+import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -39,9 +41,10 @@ public class ChatEvents implements Listener {
     @EventHandler
     public void onChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
-        if (partyChat.partyManagement.lookupParty(player.getUniqueId()) == null) {
+        if (partyChat.partyManagement.loadParty(player.getUniqueId()) == null) {
             return;
         }
+        Party party = partyChat.partyManagement.loadParty(player.getUniqueId());
         // player has party chat enabled
         if (partyChat.commandPartyChatMessage.partyChatEnabled.contains(player.getUniqueId())) {
             // cancel the chat message
@@ -53,9 +56,8 @@ public class ChatEvents implements Listener {
                 playerMessage = ChatColor.GREEN + playerMessage;
             }
 
-            String finalMessage = "<" + player.getName() + "> " + playerMessage;
-            partyChat.partyManagement.sendPartyMessage(finalMessage, partyChat.partyManagement.lookupParty(player.getUniqueId()));
-            partyChat.logger.info("[" + partyChat.partyManagement.lookupParty(player.getUniqueId()) + "] " + finalMessage);
+            Component finalMessage = Component.text("<" + player.getName() + "> " + playerMessage);
+            partyChat.partyManagement.sendPartyMessage(finalMessage, party.getPartyID());
         }
     }
 

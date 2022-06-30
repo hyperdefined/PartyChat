@@ -1,0 +1,86 @@
+# Make sure there is a space at the end of the prefix.
+# Otherwise, it's going to show like: [Party]message and not [Party] message
+party-prefix: "<green>[Party]</green> "
+errors:
+  player-not-found: "<red>That player was not found.</red>"
+  player-in-party: "<red>That player is already in a party.</red>"
+  in-a-party: "<red>You are already in a party.</red>"
+  not-in-a-party: "<red>You are not in a party. Do /party create to make one.</red>"
+  must-be-a-player: "<red>You must be a player for this command.</red>"
+
+version: 1
+
+commands:
+  help-command:
+    - "<gold>-----------------PartyChat-----------------</gold>"
+    - "<dark_aqua>/party help - Shows this menu.</dark_aqua>"
+    - "<dark_aqua>/party create - Make a new party.</dark_aqua>"
+    - "<dark_aqua>/party invite <player> - Invite a player to the party. Party owner only.</dark_aqua>"
+    - "<dark_aqua>/party accept/deny - Accept or deny an invite.</dark_aqua>"
+    - "<dark_aqua>/party kick <player> - Kick a player from the party. Party owner only.</dark_aqua>"
+    - "<dark_aqua>/party leave - Leave the party.</dark_aqua>"
+    - "<dark_aqua>/party disband - Delete the party. Party owner only.</dark_aqua>"
+    - "<dark_aqua>/party info - Information about the party.</dark_aqua>"
+    - "<dark_aqua>/party transfer <player> - Transfer ownership of party. Party owner only.</dark_aqua>"
+    - "<dark_aqua>/party trust <player> - Trust a player in the party. They can invite and kick.</dark_aqua>"
+    - "<dark_aqua>/party untrust <player> - Remove a trusted player.</dark_aqua>"
+    - "<dark_aqua>/pc on/off - Enable/disable party chat messages.</dark_aqua>"
+    - "<gold>--------------------------------------------</gold>"
+  invalid-syntax: "<red>Invalid option. See /party help for all options.</red>"
+  invite:
+    invalid-syntax: "<red>Invalid syntax. Do /party invite <player> instead.</red>"
+    pending-invite: "<red>That player already has a pending invite.</red>"
+    cant-invite: "<red>You cannot invite members to the party. The owner or any trusted members can.</red>"
+    invite-sent: "<green>Invite was sent!</green>"
+    invite-received: "<green>You have received a party invite from %player%.</green>\nTo join, type /party accept. To deny, type /party deny.</green>"
+    sent-invite: "<green>%player1% has sent an invite to %player2%.</green>"
+  create:
+    party-created: "<green>Party has been created.</green>"
+  accept:
+    no-invites: "<red>You do not have a pending invite right now.</red>"
+  deny:
+    no-invites: "<red>You do not have a pending invite right now.</red>"
+    denied: "<red>You have denied the invite.</red>"
+    sender-denied: "<red>%player% has denied the invite.</red>"
+  leave:
+    owner-leave: "<red>You cannot leave as the owner. To delete the party, do /party disband. You can transfer the ownership with /party <transfer> <player>.</red>"
+    has-left: "<red>%player% has left the party.</red>"
+  disband:
+    disbanded: "<red>Party has been deleted.</red>"
+    not-party-owner: "<red>You are not the owner of a party. Do /party leave instead.</red>"
+  kick:
+    invalid-syntax: "<red>Invalid syntax. Do /party kick <player> instead.</red>"
+    kick-owner: "<red>You cannot kick the owner of the party.</red>"
+    kick-yourself: "<red>You cannot kick yourself from the party.</red>"
+    not-in-party: "<red>That player is not in your party.</red>"
+    kicked: "<red>%player1% has been kicked from the party by %player2%.</red>"
+    kick-trusted: "<red>You cannot kick trusted players from the party. Only the owner can.</red>"
+  transfer:
+    invalid-syntax: "<red>Invalid syntax. Do /party transfer <player> instead.</red>"
+    new-owner: "<green>%player% is now the owner of the party.</green>"
+    not-owner: "<red>You cannot transfer ownership. Only the party owner can.</red>"
+  info:
+    command:
+      - "<gold>--------------------------------------------</gold>"
+      - "<dark_aqua>Members: %size% - ID: %ID%</dark_aqua>"
+      - "<dark_aqua>Owner: %owner%</dark_aqua>"
+      - "<dark_aqua>%members%</dark_aqua>"
+      - "<gold>--------------------------------------------</gold>"
+  trust:
+    invalid-synxtax: "<red>Invalid syntax. Do /party trust <player> instead.</red>"
+    not-in-party: "<red>That player is not in your party.</red>"
+    already-owner: "<red>You cannot add yourself as a trusted member, you are the party owner.</red>"
+    already-trusted: "<red>That player is already trusted.</red>"
+    not-owner: "<red>You are not the owner of the party, Only the owner can trust members.</red>"
+    join-trust: "<green>%player% has become a trusted member.</green>"
+  untrust:
+    invalid-synxtax: "<red>Invalid syntax. Do /party untrust <player> instead.</red>"
+    not-in-party: "<red>That player is not in your party.</red>"
+    already-owner: "<red>You cannot remove yourself as a trusted member, you are the party owner.</red>"
+    not-trusted: "<red>That player is not trusted.</red>"
+    not-owner: "<red>You are not the owner of the party, Only the owner can remove trusted members.</red>"
+    leave-trust: "<green>%player% has been removed as a trusted member.</green>"
+  pc:
+    invalid-syntax: "<red>Invalid syntax. Do /pc on/off instead.</red>"
+    on: "<green>Party chat has been enabled. All messages will be sent to your party members only.</green>"
+    off: "<green>Party chat has been disabled. All messages will be sent to everyone.</green>"

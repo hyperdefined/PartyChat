@@ -18,22 +18,22 @@
 package lol.hyper.partychat.tools;
 
 import lol.hyper.partychat.PartyChat;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.apache.commons.io.FilenameUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.UUID;
 
 public class PartyManagement {
 
-    private static FileWriter writer;
     /**
      * invite receiver
      * invite sender
@@ -41,9 +41,13 @@ public class PartyManagement {
     public final HashMap<UUID, UUID> pendingInvites = new HashMap<>();
 
     private final PartyChat partyChat;
+    private final BukkitAudiences audiences;
+    private final MiniMessage miniMessage;
 
     public PartyManagement(PartyChat partyChat) {
         this.partyChat = partyChat;
+        this.audiences = partyChat.getAdventure();
+        this.miniMessage = partyChat.miniMessage;
     }
 
     /**
@@ -78,7 +82,7 @@ public class PartyManagement {
      */
     private void writeFile(File file, JSONObject jsonToWrite) {
         try {
-            writer = new FileWriter(file);
+            FileWriter writer = new FileWriter(file);
             writer.write(jsonToWrite.toString());
             writer.close();
         } catch (IOException e) {
@@ -99,14 +103,19 @@ public class PartyManagement {
         pendingInvites.put(receiver, sender);
         Player receiverPlayer = Bukkit.getPlayer(receiver);
         Player senderPlayer = Bukkit.getPlayer(sender);
-        receiverPlayer.sendMessage(PartyChat.MESSAGE_PREFIX + "You have received a party invite from " + ChatColor.GOLD
-                + senderPlayer.getName() + ".");
-        receiverPlayer.sendMessage(
-                PartyChat.MESSAGE_PREFIX + "To join, type /party accept. To deny, type /party deny.");
-        senderPlayer.sendMessage(PartyChat.MESSAGE_PREFIX + "Invite sent!");
+        if (receiverPlayer != null && senderPlayer != null) {
+            String inviteReceived = partyChat.getMessage("commands.invite.invite-received").replace("%player%", receiverPlayer.getName());
+            audiences.player(receiverPlayer).sendMessage(miniMessage.deserialize(inviteReceived));
+
+            audiences.player(senderPlayer).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.invite.invite-sent")));
+        } else {
+            return;
+        }
+
+        String sentInvite = partyChat.getMessage("commands.invite.sent-invite").replace("%player1%", senderPlayer.getName()).replace("%player2%", receiverPlayer.getName());
         partyChat.logger.info(
-                senderPlayer.getName() + " sent an invite to " + receiverPlayer.getName() + " for party " + partyID);
-        sendPartyMessage(senderPlayer.getName() + " has sent an invite to " + receiverPlayer.getName() + ".", partyID);
+                sender + " sent an invite to " + receiver + " for party " + partyID);
+        sendPartyMessage(miniMessage.deserialize(sentInvite), partyID);
     }
 
     /**
@@ -116,17 +125,22 @@ public class PartyManagement {
      * @param answer Player's response to being invited.
      */
     public void removeInvite(UUID pendingPlayer, boolean answer) {
-        String player = Bukkit.getPlayer(pendingPlayer).getName();
-        String partyID = lookupParty(pendingInvites.get(pendingPlayer));
+        Player invitedPlayer = Bukkit.getPlayer(pendingPlayer);
+        Party party = loadParty(pendingInvites.get(pendingPlayer));
         if (answer) {
-            addPlayerToParty(pendingPlayer, partyID);
-            sendPartyMessage(player + " has joined the party!", partyID);
-            partyChat.logger.info(player + " has accepted invite for party " + partyID);
+            addPlayerToParty(pendingPlayer, party.getPartyID());
+            sendPartyMessage(Component.text(invitedPlayer.getName() + " has joined the party!").color(NamedTextColor.GREEN), party.getPartyID());
+            partyChat.logger.info(pendingPlayer + " has accepted invite for party " + party.getPartyID());
         } else {
-            Bukkit.getPlayer(pendingInvites.get(pendingPlayer))
-                    .sendMessage(PartyChat.MESSAGE_PREFIX + player + " has denied the invite.");
-            Bukkit.getPlayer(pendingPlayer).sendMessage(PartyChat.MESSAGE_PREFIX + "You denied the party invite.");
-            partyChat.logger.info(player + " has denied invite for party " + partyID);
+            Player sentInvitePlayer = Bukkit.getPlayer(pendingInvites.get(pendingPlayer));
+            if (sentInvitePlayer != null) {
+                String denied = partyChat.getMessage("commands.deny.sender-denied").replace("%player%", sentInvitePlayer.getName());
+                audiences.sender(sentInvitePlayer).sendMessage(miniMessage.deserialize(denied));
+            }
+            if (invitedPlayer != null) {
+                audiences.sender(invitedPlayer).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.deny.denied")));
+            }
+            partyChat.logger.info(pendingPlayer + " has denied invite for party " + party.getPartyID());
         }
         pendingInvites.remove(pendingPlayer);
     }
@@ -152,14 +166,10 @@ public class PartyManagement {
      * @param partyID   Party ID the new player is joining.
      */
     public void addPlayerToParty(UUID newMember, String partyID) {
-        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
-        JSONObject jsonObject = readFile(partyFile);
-        JSONArray partyMembers = jsonObject.getJSONArray("members");
-        partyMembers.put(newMember.toString());
-        jsonObject.put("members", partyMembers);
-        writeFile(partyFile, jsonObject);
-        String player = Bukkit.getPlayer(newMember).getName();
-        partyChat.logger.info("Adding player " + player + "to party " + partyID);
+        Party party = loadParty(partyID);
+        party.addPartyMember(newMember);
+        exportParty(party);
+        partyChat.logger.info("Adding player " + newMember + "to party " + partyID);
     }
 
     /**
@@ -169,12 +179,10 @@ public class PartyManagement {
      * @param partyID  Party ID of new owner.
      */
     public void updatePartyOwner(UUID newOwner, String partyID) {
-        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
-        JSONObject jsonObject = readFile(partyFile);
-        jsonObject.put("owner", newOwner.toString());
-        writeFile(partyFile, jsonObject);
-        String player = Bukkit.getPlayer(newOwner).getName();
-        partyChat.logger.info("Party " + partyID + " is now owned by " + player);
+        Party party = loadParty(partyID);
+        party.setPartyOwner(newOwner);
+        exportParty(party);
+        partyChat.logger.info("Party " + partyID + " is now owned by " + newOwner);
     }
 
     /**
@@ -184,78 +192,34 @@ public class PartyManagement {
      * @param partyID   Party ID player is being removed from.
      */
     public void removePlayerFromParty(UUID oldPlayer, String partyID) {
-        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
-        JSONObject jsonObject = readFile(partyFile);
-        JSONArray partyMembers = jsonObject.getJSONArray("members");
-        for (int i = 0; i < partyMembers.length(); i++) {
-            String player = partyMembers.getString(i);
-            if (oldPlayer.toString().equalsIgnoreCase(player)) {
-                partyMembers.remove(i);
-            }
+        Party party = loadParty(partyID);
+        party.removePartyMember(oldPlayer);
+        if (party.getTrustedMembers().contains(oldPlayer)) {
+            party.removeTrustedMember(oldPlayer);
         }
-        if (jsonObject.has("trusted")) {
-            JSONArray trusted = jsonObject.getJSONArray("trusted");
-            boolean didWeRemove = false;
-            for (int i = 0; i < trusted.length(); i++) {
-                String player = trusted.getString(i);
-                if (oldPlayer.toString().equalsIgnoreCase(player)) {
-                    trusted.remove(i);
-                    didWeRemove = true;
-                    break;
-                }
-            }
-            if (didWeRemove) {
-                jsonObject.put("trusted", trusted);
-            }
-        }
-        jsonObject.put("members", partyMembers);
-        writeFile(partyFile, jsonObject);
-        String player = Bukkit.getPlayer(oldPlayer).getName();
-        partyChat.logger.info(player + " has left party " + partyID);
-    }
-
-    /**
-     * Check if player is in a party.
-     *
-     * @param player UUID of player to check party.
-     * @return Returns their party id if they have one.
-     */
-    public String lookupParty(UUID player) {
-        File[] partyDirectory = partyChat.partyFolder.toFile().listFiles();
-        if (partyDirectory != null) {
-            for (File currentFile : partyDirectory) {
-                JSONObject currentJSON = readFile(currentFile);
-                JSONArray partyMembers = currentJSON.getJSONArray("members");
-                for (int i = 0; i < partyMembers.length(); i++) {
-                    if (partyMembers.getString(i).equalsIgnoreCase(player.toString())) {
-                        return FilenameUtils.removeExtension(currentFile.getName());
-                    }
-                }
-            }
-        }
-        return null;
+        exportParty(party);
+        partyChat.logger.info(oldPlayer + " has left party " + partyID);
     }
 
     /**
      * Check if player is the party owner.
      *
      * @param player UUID of player to check.
-     * @return Returns returns if player is owner.
+     * @return Returns if player is owner.
      */
     public boolean isPlayerOwner(UUID player) {
-        return lookupOwner(lookupParty(player)).equals(player);
+        return lookupOwner(loadParty(player).getPartyID()).equals(player);
     }
 
     /**
-     * Looks up who the owner of a party is.
+     * See who owns a party.
      *
-     * @param partyID Party ID to see who owner is.
-     * @return returns their party id if they have one
+     * @param partyID Party ID to check.
+     * @return Returns the owner.
      */
     public UUID lookupOwner(String partyID) {
-        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
-        JSONObject currentJSON = readFile(partyFile);
-        return UUID.fromString(currentJSON.get("owner").toString());
+        Party party = loadParty(partyID);
+        return party.getPartyOwner();
     }
 
     /**
@@ -263,33 +227,15 @@ public class PartyManagement {
      *
      * @param message Message to send the whole party.
      */
-    public void sendPartyMessage(String message, String partyID) {
-        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
-        JSONObject jsonObject = readFile(partyFile);
-        JSONArray partyMembers = jsonObject.getJSONArray("members");
-        for (Object partyMember : partyMembers) {
-            UUID uuid = UUID.fromString((String) partyMember);
-            if (Bukkit.getPlayer(uuid) != null) {
-                Bukkit.getPlayer(uuid).sendMessage(PartyChat.MESSAGE_PREFIX + message);
+    public void sendPartyMessage(Component message, String partyID) {
+        Party party = loadParty(partyID);
+        for (UUID partyMember : party.getPartyMembers()) {
+            Player player = Bukkit.getPlayer(partyMember);
+            if (player != null) {
+                Component partyMessage = miniMessage.deserialize(partyChat.getMessage("party-prefix")).append(message);
+                audiences.sender(player).sendMessage(partyMessage);
             }
         }
-    }
-
-    /**
-     * Get and array of party members.
-     *
-     * @param partyID Party ID to get list of members.
-     * @return returns the list of party members
-     */
-    public ArrayList<UUID> listPartyMembers(String partyID) {
-        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
-        JSONObject jsonObject = readFile(partyFile);
-        ArrayList<UUID> partyArray = new ArrayList<>();
-        JSONArray partyMembers = jsonObject.getJSONArray("members");
-        for (int i = 0; i < partyMembers.length(); i++) {
-            partyArray.add(UUID.fromString(partyMembers.getString(i)));
-        }
-        return partyArray;
     }
 
     /**
@@ -305,11 +251,11 @@ public class PartyManagement {
         JSONArray members = new JSONArray();
         members.put(player.toString());
         partyObject.put("members", members);
+        partyObject.put("trusted", new JSONArray());
 
         File partyFile = new File(partyChat.partyFolder.toFile(), newUUID + ".json");
         writeFile(partyFile, partyObject);
-        String owner = Bukkit.getPlayer(player).getName();
-        partyChat.logger.info("Party " + newUUID + " has been created by " + owner);
+        partyChat.logger.info("Party " + newUUID + " has been created by " + player);
     }
 
     /**
@@ -317,22 +263,15 @@ public class PartyManagement {
      * @param player Player to trust.
      */
     public void trustPlayer(UUID player) {
-        String partyID = lookupParty(player);
-        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
-        JSONObject jsonObject = readFile(partyFile);
-        // throws exception if this doesn't exist, so we have to check it since this trusted feature is new
-        JSONArray trusted;
-        if (jsonObject.has("trusted")) {
-            trusted = new JSONArray(jsonObject.getJSONArray("trusted"));
-        } else {
-            trusted = new JSONArray();
+        Party party = loadParty(player);
+        party.addTrustedMember(player);
+        exportParty(party);
+        Player trusted = Bukkit.getPlayer(player);
+        if (trusted != null) {
+            String joinedTrusted = partyChat.getMessage("commands.trust.join-trust").replace("%player%", trusted.getName());
+            sendPartyMessage(miniMessage.deserialize(joinedTrusted), party.getPartyID());
         }
-        trusted.put(player.toString());
-        jsonObject.put("trusted", trusted);
-        writeFile(partyFile, jsonObject);
-        String trustedPlayer = Bukkit.getPlayer(player).getName();
-        sendPartyMessage(trustedPlayer + " has become a trusted member.", partyID);
-        partyChat.logger.info(trustedPlayer + " is now a trusted player of " + partyID);
+        partyChat.logger.info(player + " is now a trusted player of " + party.getPartyID());
     }
 
     /**
@@ -341,19 +280,8 @@ public class PartyManagement {
      * @return True if the player is trusted, false if not.
      */
     public boolean checkTrusted(UUID player) {
-        String partyID = lookupParty(player);
-        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
-        JSONObject jsonObject = readFile(partyFile);
-        // throws exception if this doesn't exist, so we have to check it since this trusted feature is new
-        if (jsonObject.has("trusted")) {
-            JSONArray trusted = new JSONArray(jsonObject.getJSONArray("trusted"));
-            for (int i = 0; i < trusted.length(); i++) {
-                if (trusted.getString(i).equalsIgnoreCase(player.toString())) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        Party party = loadParty(player);
+        return party.getTrustedMembers().contains(player);
     }
 
     /**
@@ -361,21 +289,101 @@ public class PartyManagement {
      * @param player Player to remove.
      */
     public void removeTrustedPlayer(UUID player) {
-        String partyID = lookupParty(player);
-        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
-        JSONObject jsonObject = readFile(partyFile);
-        // throws exception if this doesn't exist, so we have to check it since this trusted feature is new
-        JSONArray trusted = new JSONArray(jsonObject.getJSONArray("trusted"));
-        for (int i = 0; i < trusted.length(); i++) {
-            if (trusted.getString(i).equalsIgnoreCase(player.toString())) {
-                trusted.remove(i);
-                break;
+        Party party = loadParty(player);
+        party.removeTrustedMember(player);
+        exportParty(party);
+        String playerName = Bukkit.getPlayer(player).getName();
+        String removedTrusted = partyChat.getMessage("commands.untrust.leave-trust").replace("%player%", playerName);
+        sendPartyMessage(miniMessage.deserialize(removedTrusted), party.getPartyID());
+        partyChat.logger.info(playerName + " is no longer a trusted player of " + party.getPartyID());
+    }
+
+    /**
+     * Loads a party based on a player's UUID.
+     * @param player Player who is in a party.
+     * @return The party object.
+     */
+    public Party loadParty(UUID player) {
+        File[] partyDirectory = partyChat.partyFolder.toFile().listFiles();
+        String partyID = null;
+        if (partyDirectory != null) {
+            for (File currentFile : partyDirectory) {
+                JSONObject currentJSON = readFile(currentFile);
+                JSONArray partyMembers = currentJSON.getJSONArray("members");
+                for (int i = 0; i < partyMembers.length(); i++) {
+                    if (partyMembers.getString(i).equalsIgnoreCase(player.toString())) {
+                        partyID = FilenameUtils.removeExtension(currentFile.getName());
+                        break;
+                    }
+                }
             }
         }
-        jsonObject.put("trusted", trusted);
-        writeFile(partyFile, jsonObject);
-        sendPartyMessage(Bukkit.getPlayer(player).getName() + " has been removed as a trusted member.", partyID);
-        String trustedPlayer = Bukkit.getPlayer(player).getName();
-        partyChat.logger.info(trustedPlayer + " is no longer a trusted player of " + partyID);
+        if (partyID == null) {
+            return null;
+        }
+        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
+        JSONObject jsonObject = readFile(partyFile);
+        Party party = new Party(partyID);
+        // add owners
+        JSONArray partyMembers = jsonObject.getJSONArray("members");
+        for (int i = 0; i < partyMembers.length(); i++) {
+            party.addPartyMember(UUID.fromString(partyMembers.getString(i)));
+        }
+        // set party owner
+        party.setPartyOwner(UUID.fromString(jsonObject.getString("owner")));
+        // add trusted players
+        JSONArray trustedMembers = jsonObject.getJSONArray("trusted");
+        for (int i = 0; i < trustedMembers.length(); i++) {
+            party.addTrustedMember(UUID.fromString(trustedMembers.getString(i)));
+        }
+        return party;
+    }
+
+    /**
+     * Loads a party based on ID.
+     * @param partyID Party of ID to load.
+     * @return The party object.
+     */
+    public Party loadParty(String partyID) {
+        File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
+        JSONObject jsonObject = readFile(partyFile);
+        Party party = new Party(partyID);
+        // add owners
+        JSONArray partyMembers = jsonObject.getJSONArray("members");
+        for (int i = 0; i < partyMembers.length(); i++) {
+            party.addPartyMember(UUID.fromString(partyMembers.getString(i)));
+        }
+        // set party owner
+        party.setPartyOwner(UUID.fromString(jsonObject.getString("owner")));
+        // add trusted players
+        JSONArray trustedMembers = jsonObject.getJSONArray("trusted");
+        for (int i = 0; i < trustedMembers.length(); i++) {
+            party.addTrustedMember(UUID.fromString(trustedMembers.getString(i)));
+        }
+        return party;
+    }
+
+    /**
+     * Exports current party in memory to disk.
+     * @param party The party to export.
+     */
+    public void exportParty(Party party) {
+        File partyFile = new File(partyChat.partyFolder.toFile(), party.getPartyID() + ".json");
+        JSONObject newPartyObject = new JSONObject();
+        newPartyObject.put("owner", party.getPartyOwner().toString());
+        JSONArray partyMembers = new JSONArray();
+        for (UUID member : party.getPartyMembers()) {
+            partyMembers.put(member.toString());
+        }
+        newPartyObject.put("members", partyMembers);
+
+        JSONArray trustedMembers = new JSONArray();
+        for (UUID member : party.getTrustedMembers()) {
+            trustedMembers.put(member.toString());
+        }
+        newPartyObject.put("trusted", trustedMembers);
+        newPartyObject.put("id", party.getPartyID());
+
+        writeFile(partyFile, newPartyObject);
     }
 }
