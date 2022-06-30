@@ -79,7 +79,6 @@ public class CommandPartyChatMessage implements TabExecutor {
         if (arg.equalsIgnoreCase("on") || arg.equalsIgnoreCase("off")) {
             if (arg.equalsIgnoreCase("on")) {
                 partyChatEnabled.add(player);
-                sender.sendMessage(String.valueOf(partyChat.messages.getConfigurationSection("commands.pc").getKeys(false)));
                 audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.pc.enabled")));
             }
             if (arg.equalsIgnoreCase("off")) {
