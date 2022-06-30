@@ -192,8 +192,9 @@ public class CommandParty implements TabExecutor {
                         return true;
                     }
                     Player playerToKick = Bukkit.getPlayerExact(args[1]);
+                    Party party = partyChat.partyManagement.loadParty(commandSender);
                     String partyIDKickingPlayer = partyChat.partyManagement.loadParty(playerToKick.getUniqueId()).getPartyID();
-                    String partyID = partyChat.partyManagement.loadParty(commandSender).getPartyID();
+                    String partyID = party.getPartyID();
                     if (!partyID.equals(partyIDKickingPlayer)) {
                         audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.not-in-party")));
                         return true;
@@ -206,12 +207,16 @@ public class CommandParty implements TabExecutor {
                         audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.kick-yourself")));
                         return true;
                     }
+                    if (party.getTrustedMembers().contains(playerToKick.getUniqueId())) {
+                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.kick-trusted")));
+                        return true;
+                    }
                     String kickMessage = partyChat.getMessage("commands.kick.kicked").replace("%player1%", playerToKick.getName()).replace("%player2%", sender.getName());
                     partyChat.partyManagement.sendPartyMessage(miniMessage.deserialize(kickMessage), partyID);
                     partyChat.partyManagement.removePlayerFromParty(playerToKick.getUniqueId(), partyID);
                     return true;
                 }
-                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.kick-trusted")));
+                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.not-trusted")));
                 return true;
             }
             case "transfer": {

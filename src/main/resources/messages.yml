@@ -54,7 +54,8 @@ commands:
     kick-yourself: "<red>You cannot kick yourself from the party.</red>"
     not-in-party: "<red>That player is not in your party.</red>"
     kicked: "<red>%player1% has been kicked from the party by %player2%.</red>"
-    kick-trusted: "<red>You cannot kick trusted players from the party. Only the owner can.</red>"
+    not-trusted: "<red>You are not a trusted player.</red>"
+    kick-trusted: "<red>You cannot kick trusted players. Only the owner can.</red>"
   transfer:
     invalid-syntax: "<red>Invalid syntax. Do /party transfer <player> instead.</red>"
     new-owner: "<green>%player% is now the owner of the party.</green>"
