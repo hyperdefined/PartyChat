@@ -21,7 +21,6 @@ import lol.hyper.partychat.PartyChat;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.apache.commons.io.FilenameUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.json.JSONArray;
@@ -312,7 +311,7 @@ public class PartyManagement {
                 JSONArray partyMembers = currentJSON.getJSONArray("members");
                 for (int i = 0; i < partyMembers.length(); i++) {
                     if (partyMembers.getString(i).equalsIgnoreCase(player.toString())) {
-                        partyID = FilenameUtils.removeExtension(currentFile.getName());
+                        partyID = currentJSON.getString("id");
                         break;
                     }
                 }

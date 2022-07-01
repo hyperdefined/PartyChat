@@ -75,10 +75,6 @@
                                     <shadedPattern>lol.hyper.partychat.bstats</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>org.apache.commons.io</pattern>
-                                    <shadedPattern>lol.hyper.partychat.commons.io</shadedPattern>
-                                </relocation>
-                                <relocation>
                                     <pattern>org.json</pattern>
                                     <shadedPattern>lol.hyper.partychat.json</shadedPattern>
                                 </relocation>
@@ -119,12 +115,6 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20220320</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.11.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
