@@ -49,10 +49,7 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class CommandParty implements TabExecutor {
 
@@ -372,7 +369,7 @@ public class CommandParty implements TabExecutor {
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
-        if (args.length > 0) {
+        if (args.length == 1) {
             return Arrays.asList(
                     "create",
                     "invite",
@@ -386,8 +383,7 @@ public class CommandParty implements TabExecutor {
                     "help",
                     "trust",
                     "untrust");
-        } else {
-            return null;
         }
+        return null;
     }
 }

@@ -37,7 +37,6 @@ package lol.hyper.partychat.commands;
 import lol.hyper.partychat.PartyChat;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -95,7 +94,7 @@ public class CommandPartyChatMessage implements TabExecutor {
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
-        if (args.length > 0) {
+        if (args.length == 1) {
             return Arrays.asList("on", "off");
         } else {
             return null;
