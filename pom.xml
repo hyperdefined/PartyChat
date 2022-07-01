@@ -79,6 +79,10 @@
                                     <pattern>lol.hyper.githubreleaseapi</pattern>
                                     <shadedPattern>lol.hyper.partychat.updater</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>net.kyori</pattern>
+                                    <shadedPattern>lol.hyper.partychat.adventure</shadedPattern>
+                                </relocation>
                             </relocations>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                         </configuration>
