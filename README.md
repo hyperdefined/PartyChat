@@ -16,6 +16,7 @@ A simple party chat plugin. Talk privately with other players.
 * Create a party with other server members.
 * Talk privately with your party.
 * Commands for party management.
+* Fully customization of all messages of the plugin.
 
 ## Documentation
 Visit the [wiki](https://github.com/hyperdefined/PartyChat/wiki) for help.
@@ -26,4 +27,3 @@ This plugin is released under GNU General Public License v3. See [LICENSE](https
 | Licenses |
 | ----------- |
 | [org.json](https://github.com/stleary/JSON-java/blob/master/LICENSE) |
-| [commons-io](https://github.com/apache/commons-io/blob/master/LICENSE.txt) | 
