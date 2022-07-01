@@ -20,7 +20,7 @@ package lol.hyper.partychat.events;
 import lol.hyper.partychat.PartyChat;
 import lol.hyper.partychat.tools.Party;
 import net.kyori.adventure.text.Component;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -49,14 +49,17 @@ public class ChatEvents implements Listener {
         if (partyChat.commandPartyChatMessage.partyChatEnabled.contains(player.getUniqueId())) {
             // cancel the chat message
             event.setCancelled(true);
-            String playerMessage = String.join(" ", event.getMessage());
+            String chatMessageRaw = String.join(" ", event.getMessage());
+            Component chatMessage;
             Pattern greenTextPattern = Pattern.compile("^>(\\S*).*");
-            Matcher greenTextMatcher = greenTextPattern.matcher(playerMessage);
+            Matcher greenTextMatcher = greenTextPattern.matcher(chatMessageRaw);
             if (greenTextMatcher.find()) {
-                playerMessage = ChatColor.GREEN + playerMessage;
+                chatMessage = Component.text(chatMessageRaw).color(NamedTextColor.GREEN);
+            } else {
+                chatMessage = Component.text(chatMessageRaw);
             }
 
-            Component finalMessage = Component.text("<" + player.getName() + "> " + playerMessage);
+            Component finalMessage = Component.text("<" + player.getName() + "> ").append(chatMessage);
             partyChat.partyManagement.sendPartyMessage(finalMessage, party.getPartyID());
         }
     }
