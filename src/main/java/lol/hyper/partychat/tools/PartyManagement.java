@@ -294,7 +294,7 @@ public class PartyManagement {
         String playerName = Bukkit.getPlayer(player).getName();
         String removedTrusted = partyChat.getMessage("commands.untrust.leave-trust").replace("%player%", playerName);
         sendPartyMessage(miniMessage.deserialize(removedTrusted), party.getPartyID());
-        partyChat.logger.info(playerName + " is no longer a trusted player of " + party.getPartyID());
+        partyChat.logger.info(player + " is no longer a trusted player of " + party.getPartyID());
     }
 
     /**
