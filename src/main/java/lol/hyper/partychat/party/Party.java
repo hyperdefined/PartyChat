@@ -57,6 +57,12 @@ public class Party {
     private final BukkitAudiences audiences;
     private final MiniMessage miniMessage;
 
+    /**
+     * Create a new party.
+     *
+     * @param partyChat PartyChat instance.
+     * @param partyID   The party ID that was generated. This should match the party's file name.
+     */
     public Party(PartyChat partyChat, String partyID) {
         this.partyChat = partyChat;
         this.partyID = partyID;
@@ -64,31 +70,65 @@ public class Party {
         this.miniMessage = partyChat.miniMessage;
     }
 
-    public UUID owner() {
-        return partyOwner;
-    }
-
+    /**
+     * Sets the members of the party.
+     * This should only be used when the party is first loaded.
+     */
     public void setPartyMembers(Set<UUID> members) {
         this.partyMembers = members;
     }
 
+    /**
+     * Sets the trusted members of the party.
+     * This should only be used when the party is first loaded.
+     */
     public void setTrustedMembers(Set<UUID> members) {
         this.trustedMembers = members;
     }
 
+    /**
+     * Get the owner.
+     *
+     * @return The owner of the party.
+     */
+    public UUID owner() {
+        return partyOwner;
+    }
+
+    /**
+     * Set the party owner.
+     *
+     * @param partyOwner The new owner.
+     */
     public void setPartyOwner(UUID partyOwner) {
         this.partyOwner = partyOwner;
         exportParty();
     }
 
+    /**
+     * Is the player the owner.
+     *
+     * @param player The player to check.
+     * @return If the player is an owner.
+     */
     public boolean isOwner(UUID player) {
         return player.equals(partyOwner);
     }
 
+    /**
+     * Gets all party members.
+     *
+     * @return The members.
+     */
     public Set<UUID> partyMembers() {
         return partyMembers;
     }
 
+    /**
+     * Remove a player from the party.
+     *
+     * @param player The player to remove.
+     */
     public void removePartyMember(UUID player) {
         partyMembers.remove(player);
         // remove if they are a trusted member
@@ -96,33 +136,70 @@ public class Party {
         exportParty();
     }
 
+    /**
+     * Add a player to the party.
+     *
+     * @param player The player to add.
+     */
     public void addPartyMember(UUID player) {
         partyMembers.add(player);
         exportParty();
     }
 
+    /**
+     * Add a trusted member.
+     *
+     * @param player The player to trust.
+     */
     public void addTrustedMember(UUID player) {
         trustedMembers.add(player);
         exportParty();
     }
 
+    /**
+     * Remove a trusted member.
+     *
+     * @param player The player to remove.
+     */
     public void removeTrustedMember(UUID player) {
         trustedMembers.remove(player);
         exportParty();
     }
 
+    /**
+     * Gets the trusted members.
+     *
+     * @return The trusted members.
+     */
     public Set<UUID> trustedMembers() {
         return trustedMembers;
     }
 
-    public String partyID() {
-        return partyID;
-    }
-
+    /**
+     * Check if the player is trusted.
+     *
+     * @param player The player to check.
+     * @return If the player is trusted or not.
+     */
     public boolean isTrusted(UUID player) {
         return trustedMembers.contains(player);
     }
 
+    /**
+     * Gets the party ID.
+     *
+     * @return The party ID.
+     */
+    public String partyID() {
+        return partyID;
+    }
+
+    /**
+     * Invite a player to this party.
+     *
+     * @param sender   The player who is sending the invite.
+     * @param receiver The player who is being invited.
+     */
     public void invitePlayer(UUID sender, UUID receiver) {
         Invite invite = new Invite(this, sender, receiver);
         partyChat.invites.add(invite);
@@ -132,7 +209,6 @@ public class Party {
         if (receiverPlayer != null && senderPlayer != null) {
             String inviteReceived = partyChat.getMessage("commands.invite.invite-received").replace("%player%", receiverPlayer.getName());
             audiences.player(receiverPlayer).sendMessage(miniMessage.deserialize(inviteReceived));
-
             audiences.player(senderPlayer).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.invite.invite-sent")));
         } else {
             return;
@@ -144,6 +220,11 @@ public class Party {
         sendMessage(miniMessage.deserialize(sentInvite));
     }
 
+    /**
+     * Accept an invite.
+     *
+     * @param invite The invite to accept.
+     */
     public void acceptInvite(Invite invite) {
         Player player = Bukkit.getPlayer(invite.getReceiver());
         addPartyMember(invite.getReceiver());
@@ -153,6 +234,11 @@ public class Party {
         partyChat.invites.remove(invite);
     }
 
+    /**
+     * Deny an invite.
+     *
+     * @param invite The invite to deny.
+     */
     public void denyInvite(Invite invite) {
         Player sentInvitePlayer = Bukkit.getPlayer(invite.getSender());
         Player invitedPlayer = Bukkit.getPlayer(invite.getReceiver());
@@ -167,6 +253,11 @@ public class Party {
         partyChat.invites.remove(invite);
     }
 
+    /**
+     * Sends a message to all online party members.
+     *
+     * @param message The message to send.
+     */
     public void sendMessage(Component message) {
         for (UUID partyMember : partyMembers) {
             Player player = Bukkit.getPlayer(partyMember);
@@ -177,7 +268,10 @@ public class Party {
         }
     }
 
-    public void exportParty() {
+    /**
+     * Exports this party into it's file on disk. Any changes to the party should call this after
+     */
+    private void exportParty() {
         File partyFile = new File(partyChat.partyFolder.toFile(), partyID + ".json");
         JSONObject newPartyObject = new JSONObject();
         newPartyObject.put("owner", partyOwner.toString());
