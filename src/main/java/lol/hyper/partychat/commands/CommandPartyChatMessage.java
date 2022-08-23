@@ -71,7 +71,7 @@ public class CommandPartyChatMessage implements TabExecutor {
             audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.pc.invalid-syntax")));
             return true;
         }
-        if (partyChat.partyManagement.loadParty(player) == null) {
+        if (partyChat.partyManagement.getParty(player) == null) {
             audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
             return true;
         }

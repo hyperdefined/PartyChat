@@ -22,6 +22,8 @@ import lol.hyper.githubreleaseapi.GitHubReleaseAPI;
 import lol.hyper.partychat.commands.CommandParty;
 import lol.hyper.partychat.commands.CommandPartyChatMessage;
 import lol.hyper.partychat.events.ChatEvents;
+import lol.hyper.partychat.party.Invite;
+import lol.hyper.partychat.party.Party;
 import lol.hyper.partychat.tools.PartyManagement;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -35,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 public final class PartyChat extends JavaPlugin {
@@ -52,6 +55,9 @@ public final class PartyChat extends JavaPlugin {
 
     public final MiniMessage miniMessage = MiniMessage.miniMessage();
     private BukkitAudiences adventure;
+
+    public ArrayList<Party> loadedParties = new ArrayList<>();
+    public ArrayList<Invite> invites = new ArrayList<>();
 
     @Override
     public void onEnable() {
@@ -86,6 +92,8 @@ public final class PartyChat extends JavaPlugin {
         if (messages.getInt("version") != MESSAGES_VERSION) {
             logger.warning("Your messages file is outdated! Please regenerate this file!.");
         }
+
+        partyManagement.loadParties();
     }
 
     public void checkForUpdates() {
