@@ -38,6 +38,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public final class PartyChat extends JavaPlugin {
@@ -56,8 +58,8 @@ public final class PartyChat extends JavaPlugin {
     public final MiniMessage miniMessage = MiniMessage.miniMessage();
     private BukkitAudiences adventure;
 
-    public ArrayList<Party> loadedParties = new ArrayList<>();
-    public ArrayList<Invite> invites = new ArrayList<>();
+    public final Set<Party> loadedParties = new HashSet<>();
+    public final Set<Invite> invites = new HashSet<>();
 
     @Override
     public void onEnable() {

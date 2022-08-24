@@ -19,12 +19,6 @@ package lol.hyper.partychat.tools;
 
 import lol.hyper.partychat.PartyChat;
 import lol.hyper.partychat.party.Party;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.checkerframework.checker.units.qual.A;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -40,17 +34,14 @@ public class PartyManagement {
     public final HashMap<UUID, UUID> pendingInvites = new HashMap<>();
 
     private final PartyChat partyChat;
-    private final BukkitAudiences audiences;
-    private final MiniMessage miniMessage;
 
     public PartyManagement(PartyChat partyChat) {
         this.partyChat = partyChat;
-        this.audiences = partyChat.getAdventure();
-        this.miniMessage = partyChat.miniMessage;
     }
 
     /**
      * Read data from JSON file.
+     *
      * @param file File to read data from.
      * @return JSONObject with JSON data.
      */
@@ -76,7 +67,8 @@ public class PartyManagement {
 
     /**
      * Write data to JSON file.
-     * @param file File to write data to.
+     *
+     * @param file        File to write data to.
      * @param jsonToWrite Data to write to file. This much be a JSON string.
      */
     public void writeFile(File file, JSONObject jsonToWrite) {
@@ -132,6 +124,7 @@ public class PartyManagement {
 
     /**
      * Gets a loaded party based on a player's UUID.
+     *
      * @param player The player to look for.
      * @return The party.
      */
@@ -148,6 +141,7 @@ public class PartyManagement {
      * Load all parties from the disk.
      */
     public void loadParties() {
+        partyChat.logger.info("Loading parties...");
         File[] partyDirectory = partyChat.partyFolder.toFile().listFiles();
         if (partyDirectory != null) {
             for (File currentFile : partyDirectory) {
@@ -186,5 +180,6 @@ public class PartyManagement {
                 partyChat.loadedParties.add(party);
             }
         }
+        partyChat.logger.info("Loaded " + partyChat.loadedParties.size() + " parties.");
     }
 }
