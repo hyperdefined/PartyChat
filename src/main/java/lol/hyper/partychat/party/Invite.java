@@ -24,7 +24,7 @@ public class Invite {
     private final UUID sender;
     private final UUID receiver;
 
-    public Invite(Party party, UUID sender, UUID receiver) {
+    public Invite(UUID sender, UUID receiver) {
         this.sender = sender;
         this.receiver = receiver;
     }

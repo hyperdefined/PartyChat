@@ -201,20 +201,20 @@ public class Party {
      * @param receiver The player who is being invited.
      */
     public void invitePlayer(UUID sender, UUID receiver) {
-        Invite invite = new Invite(this, sender, receiver);
+        Invite invite = new Invite(sender, receiver);
         partyChat.invites.add(invite);
         Player receiverPlayer = Bukkit.getPlayer(receiver);
         Player senderPlayer = Bukkit.getPlayer(sender);
 
         if (receiverPlayer != null && senderPlayer != null) {
-            String inviteReceived = partyChat.getMessage("commands.invite.invite-received").replace("%player%", receiverPlayer.getName());
+            String inviteReceived = partyChat.getConfigMessage("commands.invite.invite-received").replace("%player%", receiverPlayer.getName());
             audiences.player(receiverPlayer).sendMessage(miniMessage.deserialize(inviteReceived));
-            audiences.player(senderPlayer).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.invite.invite-sent")));
+            audiences.player(senderPlayer).sendMessage(partyChat.getComponent("commands.invite.invite-sent"));
         } else {
             return;
         }
 
-        String sentInvite = partyChat.getMessage("commands.invite.sent-invite").replace("%player1%", senderPlayer.getName()).replace("%player2%", receiverPlayer.getName());
+        String sentInvite = partyChat.getConfigMessage("commands.invite.sent-invite").replace("%player1%", senderPlayer.getName()).replace("%player2%", receiverPlayer.getName());
         partyChat.logger.info(
                 sender + " sent an invite to " + receiver + " for party " + partyID);
         sendMessage(miniMessage.deserialize(sentInvite));
@@ -228,7 +228,7 @@ public class Party {
     public void acceptInvite(Invite invite) {
         Player player = Bukkit.getPlayer(invite.getReceiver());
         addPartyMember(invite.getReceiver());
-        String newJoin = partyChat.getMessage("commands.accept.sender-accepted").replace("%player%", player.getName());
+        String newJoin = partyChat.getConfigMessage("commands.accept.sender-accepted").replace("%player%", player.getName());
         sendMessage(miniMessage.deserialize(newJoin));
         partyChat.logger.info(invite.getReceiver() + " has accepted invite for party " + partyID);
         partyChat.invites.remove(invite);
@@ -243,11 +243,11 @@ public class Party {
         Player sentInvitePlayer = Bukkit.getPlayer(invite.getSender());
         Player invitedPlayer = Bukkit.getPlayer(invite.getReceiver());
         if (sentInvitePlayer != null) {
-            String denied = partyChat.getMessage("commands.deny.sender-denied").replace("%player%", sentInvitePlayer.getName());
+            String denied = partyChat.getConfigMessage("commands.deny.sender-denied").replace("%player%", sentInvitePlayer.getName());
             audiences.sender(sentInvitePlayer).sendMessage(miniMessage.deserialize(denied));
         }
         if (invitedPlayer != null) {
-            audiences.sender(invitedPlayer).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.deny.denied")));
+            audiences.sender(invitedPlayer).sendMessage(partyChat.getComponent("commands.deny.denied"));
         }
         partyChat.logger.info(invitedPlayer + " has denied invite for party " + partyID);
         partyChat.invites.remove(invite);
@@ -262,7 +262,7 @@ public class Party {
         for (UUID partyMember : partyMembers) {
             Player player = Bukkit.getPlayer(partyMember);
             if (player != null) {
-                Component partyMessage = miniMessage.deserialize(partyChat.getMessage("party-prefix")).append(message);
+                Component partyMessage = partyChat.getComponent("party-prefix").append(message);
                 audiences.sender(player).sendMessage(partyMessage);
             }
         }

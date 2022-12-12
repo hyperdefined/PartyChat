@@ -52,41 +52,39 @@ public class CommandPartyChatMessage implements TabExecutor {
     // anyone on this list has party chat enabled
     public final ArrayList<UUID> partyChatEnabled = new ArrayList<>();
     private final BukkitAudiences audiences;
-    private final MiniMessage miniMessage;
 
     public CommandPartyChatMessage(PartyChat partyChat) {
         this.partyChat = partyChat;
         this.audiences = partyChat.getAdventure();
-        this.miniMessage = partyChat.miniMessage;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (sender instanceof ConsoleCommandSender) {
-            audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.must-be-a-player")));
+            audiences.sender(sender).sendMessage(partyChat.getComponent("errors.must-be-a-player"));
             return true;
         }
         UUID player = ((Player) sender).getUniqueId();
         if (args.length < 1) {
-            audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.pc.invalid-syntax")));
+            audiences.sender(sender).sendMessage(partyChat.getComponent("commands.pc.invalid-syntax"));
             return true;
         }
         if (partyChat.partyManagement.getParty(player) == null) {
-            audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
+            audiences.sender(sender).sendMessage(partyChat.getComponent("errors.not-in-a-party"));
             return true;
         }
         String arg = args[0];
         if (arg.equalsIgnoreCase("on") || arg.equalsIgnoreCase("off")) {
             if (arg.equalsIgnoreCase("on")) {
                 partyChatEnabled.add(player);
-                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.pc.enabled")));
+                audiences.sender(sender).sendMessage(partyChat.getComponent("commands.pc.enabled"));
             }
             if (arg.equalsIgnoreCase("off")) {
                 partyChatEnabled.remove(player);
-                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.pc.disabled")));
+                audiences.sender(sender).sendMessage(partyChat.getComponent("commands.pc.disabled"));
             }
         } else {
-            audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.pc.invalid-syntax")));
+            audiences.sender(sender).sendMessage(partyChat.getComponent("commands.pc.invalid-syntax"));
             return true;
         }
         return true;

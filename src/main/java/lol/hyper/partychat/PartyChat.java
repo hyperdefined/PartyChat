@@ -26,6 +26,8 @@ import lol.hyper.partychat.party.Invite;
 import lol.hyper.partychat.party.Party;
 import lol.hyper.partychat.tools.PartyManagement;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -37,7 +39,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -133,12 +134,26 @@ public final class PartyChat extends JavaPlugin {
      * @param path The path to the message.
      * @return Component with formatting applied.
      */
-    public String getMessage(String path) {
+    public String getConfigMessage(String path) {
         String message = messages.getString(path);
         if (message == null) {
             logger.warning(path + " is not a valid message!");
             return "<red>Invalid path! " + path + "</red>";
         }
         return message;
+    }
+
+    /**
+     * Gets a message from messages.yml.
+     * @param path The path to the message.
+     * @return Component with formatting applied.
+     */
+    public Component getComponent(String path) {
+        String message = messages.getString(path);
+        if (message == null) {
+            logger.warning(path + " is not a valid message!");
+            return Component.text("Invalid path! " + path).color(NamedTextColor.RED);
+        }
+        return miniMessage.deserialize(message);
     }
 }

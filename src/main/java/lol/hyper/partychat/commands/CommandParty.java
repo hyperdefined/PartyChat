@@ -91,39 +91,39 @@ public class CommandParty implements TabExecutor {
                 break;
             case "invite": {
                 if (args.length == 1 || args.length > 2) {
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.invite.invalid-syntax")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("commands.invite.invalid-syntax"));
                     return true;
                 }
                 if (senderParty == null) {
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("errors.not-in-a-party"));
                     return true;
                 }
                 if (senderParty.isOwner(commandSender) || senderParty.isTrusted(commandSender)) {
                     Player playerToInvite = Bukkit.getPlayerExact(args[1]);
                     if (playerToInvite == null) {
-                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-not-found")));
+                        audiences.sender(sender).sendMessage(partyChat.getComponent("errors.player-not-found"));
                         return true;
                     }
                     if (partyChat.partyManagement.pendingInvites.containsKey(playerToInvite.getUniqueId())) {
-                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.invite.pending-invite")));
+                        audiences.sender(sender).sendMessage(partyChat.getComponent("commands.invite.pending-invite"));
                         return true;
                     }
                     if (partyChat.partyManagement.getParty(playerToInvite.getUniqueId()) != null) {
-                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-in-party")));
+                        audiences.sender(sender).sendMessage(partyChat.getComponent("errors.player-in-party"));
                         return true;
                     }
                     senderParty.invitePlayer(commandSender, playerToInvite.getUniqueId());
                     return true;
                 }
-                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.invite.cant-invite")));
+                audiences.sender(sender).sendMessage(partyChat.getComponent("commands.invite.cant-invite"));
                 return true;
             }
             case "create": {
                 if (senderParty == null) {
                     partyChat.partyManagement.createParty(commandSender);
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.create.party-created")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("commands.create.party-created"));
                 } else {
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-in-party")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("errors.player-in-party"));
                 }
                 return true;
             }
@@ -135,7 +135,7 @@ public class CommandParty implements TabExecutor {
                         inviteSenderParty.acceptInvite(invite);
                         return true;
                     }
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.accept.no-invites")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("commands.accept.no-invites"));
                     return true;
                 }
             }
@@ -147,103 +147,103 @@ public class CommandParty implements TabExecutor {
                         inviteSenderParty.denyInvite(invite);
                         return true;
                     }
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.accept.no-invites")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("commands.accept.no-invites"));
                     return true;
                 }
             }
             case "leave": {
                 if (senderParty == null) {
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("errors.not-in-a-party"));
                     return true;
                 }
                 if (senderParty.isOwner(commandSender)) {
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.leave.owner-leave")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("commands.leave.owner-leave"));
                     return true;
                 }
-                senderParty.sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.leave.has-left").replace("%player%", sender.getName())));
+                senderParty.sendMessage(miniMessage.deserialize(partyChat.getConfigMessage("commands.leave.has-left").replace("%player%", sender.getName())));
                 senderParty.removePartyMember(commandSender);
                 return true;
             }
             case "disband": {
                 if (senderParty == null) {
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("errors.not-in-a-party"));
                     return true;
                 }
                 if (!senderParty.isOwner(commandSender)) {
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.disband.not-party-owner")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("commands.disband.not-party-owner"));
                     return true;
                 }
-                senderParty.sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.disband.disbanded")));
+                senderParty.sendMessage(miniMessage.deserialize(partyChat.getConfigMessage("commands.disband.disbanded")));
                 partyChat.partyManagement.deleteParty(senderParty);
                 return true;
             }
             case "kick": {
                 if (args.length == 1 || args.length > 2) {
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.invalid-syntax")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("commands.kick.invalid-syntax"));
                     return true;
                 }
                 if (senderParty == null) {
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("errors.not-in-a-party"));
                     return true;
                 }
                 if (senderParty.isOwner(commandSender) || senderParty.isTrusted(commandSender)) {
                     Player playerToKick = Bukkit.getPlayerExact(args[1]);
                     if (playerToKick == null) {
-                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-not-found")));
+                        audiences.sender(sender).sendMessage(partyChat.getComponent("errors.player-not-found"));
                         return true;
                     }
                     if (!senderParty.partyMembers().contains(playerToKick.getUniqueId())) {
-                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.not-in-party")));
+                        audiences.sender(sender).sendMessage(partyChat.getComponent("commands.kick.not-in-party"));
                         return true;
                     }
                     if (senderParty.isOwner(playerToKick.getUniqueId())) {
-                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.kick-owner")));
+                        audiences.sender(sender).sendMessage(partyChat.getComponent("commands.kick.kick-owner"));
                         return true;
                     }
                     if (commandSender.equals(playerToKick.getUniqueId())) {
-                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.kick-yourself")));
+                        audiences.sender(sender).sendMessage(partyChat.getComponent("commands.kick.kick-yourself"));
                         return true;
                     }
                     if (senderParty.trustedMembers().contains(playerToKick.getUniqueId())) {
                         if (!senderParty.isOwner(commandSender)) {
-                            audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.kick-trusted")));
+                            audiences.sender(sender).sendMessage(partyChat.getComponent("commands.kick.kick-trusted"));
                             return true;
                         }
                     }
-                    String kickMessage = partyChat.getMessage("commands.kick.kicked").replace("%player1%", playerToKick.getName()).replace("%player2%", sender.getName());
+                    String kickMessage = partyChat.getConfigMessage("commands.kick.kicked").replace("%player1%", playerToKick.getName()).replace("%player2%", sender.getName());
                     senderParty.sendMessage(miniMessage.deserialize(kickMessage));
                     senderParty.removePartyMember(playerToKick.getUniqueId());
                     return true;
                 }
-                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.kick.not-trusted")));
+                audiences.sender(sender).sendMessage(partyChat.getComponent("commands.kick.not-trusted"));
                 return true;
             }
             case "transfer": {
                 if (args.length == 1 || args.length > 2) {
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.transfer.invalid-syntax")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("commands.transfer.invalid-syntax"));
                     return true;
                 }
                 if (senderParty == null) {
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("errors.not-in-a-party"));
                     return true;
                 }
                 if (senderParty.isOwner(commandSender)) {
                     Player newOwner = Bukkit.getPlayerExact(args[1]);
                     if (newOwner == null) {
-                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-not-found")));
+                        audiences.sender(sender).sendMessage(partyChat.getComponent("errors.player-not-found"));
                         return true;
                     }
-                    String newOwnerMessage = partyChat.getMessage("commands.transfer.new-owner").replace("%player%", newOwner.getName());
+                    String newOwnerMessage = partyChat.getConfigMessage("commands.transfer.new-owner").replace("%player%", newOwner.getName());
                     senderParty.sendMessage(miniMessage.deserialize(newOwnerMessage));
                     senderParty.setPartyOwner(newOwner.getUniqueId());
                     return true;
                 }
-                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.transfer.not-owner")));
+                audiences.sender(sender).sendMessage(partyChat.getComponent("commands.transfer.not-owner"));
                 return true;
             }
             case "info": {
                 if (senderParty == null) {
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("errors.not-in-a-party"));
                     return true;
                 }
                 UUID partyOwner = senderParty.owner();
@@ -292,72 +292,72 @@ public class CommandParty implements TabExecutor {
             }
             case "trust": {
                 if (args.length == 1 || args.length > 2) {
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.trust.invalid-syntax")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("commands.trust.invalid-syntax"));
                     return true;
                 }
                 if (senderParty == null) {
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("errors.not-in-a-party"));
                     return true;
                 }
                 if (senderParty.isOwner(commandSender)) {
                     Player memberToTrust = Bukkit.getPlayerExact(args[1]);
                     if (memberToTrust == null) {
-                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-not-found")));
+                        audiences.sender(sender).sendMessage(partyChat.getComponent("errors.player-not-found"));
                         return true;
                     }
                     if (!senderParty.partyMembers().contains(memberToTrust.getUniqueId())) {
-                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.trust.not-in-party")));
+                        audiences.sender(sender).sendMessage(partyChat.getComponent("commands.trust.not-in-party"));
                         return true;
                     }
                     if (commandSender.equals(memberToTrust.getUniqueId())) {
-                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.trust.already-owner")));
+                        audiences.sender(sender).sendMessage(partyChat.getComponent("commands.trust.already-owner"));
                         return true;
                     }
                     if (senderParty.isTrusted(memberToTrust.getUniqueId())) {
-                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.trust.already-trusted")));
+                        audiences.sender(sender).sendMessage(partyChat.getComponent("commands.trust.already-trusted"));
                         return true;
                     }
                     senderParty.addTrustedMember(memberToTrust.getUniqueId());
                     return true;
                 }
-                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.trust.not-owner")));
+                audiences.sender(sender).sendMessage(partyChat.getComponent("commands.trust.not-owner"));
                 return true;
             }
             case "untrust": {
                 if (args.length == 1 || args.length > 2) {
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.untrust.invalid-syntax")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("commands.untrust.invalid-syntax"));
                     return true;
                 }
                 if (senderParty == null) {
-                    audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.not-in-a-party")));
+                    audiences.sender(sender).sendMessage(partyChat.getComponent("errors.not-in-a-party"));
                     return true;
                 }
                 if (senderParty.isOwner(commandSender)) {
                     Player memberToUnTrust = Bukkit.getPlayerExact(args[1]);
                     if (memberToUnTrust == null) {
-                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("errors.player-not-found")));
+                        audiences.sender(sender).sendMessage(partyChat.getComponent("errors.player-not-found"));
                         return true;
                     }
                     if (!senderParty.partyMembers().contains(memberToUnTrust.getUniqueId())) {
-                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.untrust.not-in-party")));
+                        audiences.sender(sender).sendMessage(partyChat.getComponent("commands.untrust.not-in-party"));
                         return true;
                     }
                     if (commandSender.equals(memberToUnTrust.getUniqueId())) {
-                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.untrust.already-owner")));
+                        audiences.sender(sender).sendMessage(partyChat.getComponent("commands.untrust.already-owner"));
                         return true;
                     }
                     if (!senderParty.isTrusted(memberToUnTrust.getUniqueId())) {
-                        audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.untrust.not-trusted")));
+                        audiences.sender(sender).sendMessage(partyChat.getComponent("commands.untrust.not-trusted"));
                         return true;
                     }
                     senderParty.removeTrustedMember(memberToUnTrust.getUniqueId());
                     return true;
                 }
-                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.untrust.not-owner")));
+                audiences.sender(sender).sendMessage(partyChat.getComponent("commands.untrust.not-owner"));
                 return true;
             }
             default: {
-                audiences.sender(sender).sendMessage(miniMessage.deserialize(partyChat.getMessage("commands.invalid-syntax")));
+                audiences.sender(sender).sendMessage(partyChat.getComponent("commands.invalid-syntax"));
                 return true;
             }
         }
