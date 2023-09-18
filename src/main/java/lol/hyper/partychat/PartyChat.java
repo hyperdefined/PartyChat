@@ -34,6 +34,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import space.arim.morepaperlib.MorePaperLib;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,10 +62,12 @@ public final class PartyChat extends JavaPlugin {
 
     public final Set<Party> loadedParties = new HashSet<>();
     public final Set<Invite> invites = new HashSet<>();
+    public MorePaperLib morePaperLib;
 
     @Override
     public void onEnable() {
         this.adventure = BukkitAudiences.create(this);
+        morePaperLib = new MorePaperLib(this);
         partyManagement = new PartyManagement(this);
         commandParty = new CommandParty(this);
         commandPartyChatMessage = new CommandPartyChatMessage(this);
@@ -77,15 +80,13 @@ public final class PartyChat extends JavaPlugin {
 
         if (!partyFolder.toFile().exists()) {
             if (!partyFolder.toFile().mkdirs()) {
-                logger.severe("Unable to create the party folder " + partyFolder
-                        + "! Please manually create this folder because things will break!");
+                logger.severe("Unable to create the party folder " + partyFolder + "! Please manually create this folder because things will break!");
             } else {
                 logger.info("Creating parties folder for data storage.");
             }
         }
 
-        Bukkit.getScheduler().runTaskAsynchronously(this, this::checkForUpdates);
-
+        morePaperLib.scheduling().asyncScheduler().run(this::checkForUpdates);
 
         if (!messagesFile.exists()) {
             this.saveResource("messages.yml", true);
@@ -123,7 +124,7 @@ public final class PartyChat extends JavaPlugin {
     }
 
     public BukkitAudiences getAdventure() {
-        if(this.adventure == null) {
+        if (this.adventure == null) {
             throw new IllegalStateException("Tried to access Adventure when the plugin was disabled!");
         }
         return this.adventure;
@@ -131,6 +132,7 @@ public final class PartyChat extends JavaPlugin {
 
     /**
      * Gets a message from messages.yml.
+     *
      * @param path The path to the message.
      * @return Component with formatting applied.
      */
@@ -145,6 +147,7 @@ public final class PartyChat extends JavaPlugin {
 
     /**
      * Gets a message from messages.yml.
+     *
      * @param path The path to the message.
      * @return Component with formatting applied.
      */

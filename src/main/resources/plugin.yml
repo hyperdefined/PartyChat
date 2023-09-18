@@ -5,6 +5,7 @@ api-version: 1.13
 author: hyperdefined
 website: https://www.spigotmc.org/resources/partychat.88947/
 description: A simple party chat plugin.
+folia-supported: true
 commands:
   party:
     description: The main party command.

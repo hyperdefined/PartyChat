@@ -50,7 +50,10 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 public class CommandParty implements TabExecutor {
 
@@ -365,22 +368,9 @@ public class CommandParty implements TabExecutor {
     }
 
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String
-            alias, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
         if (args.length == 1) {
-            return Arrays.asList(
-                    "create",
-                    "invite",
-                    "accept",
-                    "deny",
-                    "kick",
-                    "leave",
-                    "disband",
-                    "info",
-                    "transfer",
-                    "help",
-                    "trust",
-                    "untrust");
+            return Arrays.asList("create", "invite", "accept", "deny", "kick", "leave", "disband", "info", "transfer", "help", "trust", "untrust");
         }
         return null;
     }

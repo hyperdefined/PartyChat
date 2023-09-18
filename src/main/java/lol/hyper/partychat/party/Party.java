@@ -44,7 +44,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public class Party {
 
@@ -215,8 +217,7 @@ public class Party {
         }
 
         String sentInvite = partyChat.getConfigMessage("commands.invite.sent-invite").replace("%player1%", senderPlayer.getName()).replace("%player2%", receiverPlayer.getName());
-        partyChat.logger.info(
-                sender + " sent an invite to " + receiver + " for party " + partyID);
+        partyChat.logger.info(sender + " sent an invite to " + receiver + " for party " + partyID);
         sendMessage(miniMessage.deserialize(sentInvite));
     }
 
